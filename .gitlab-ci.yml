@@ -22,16 +22,16 @@ before_script:
 stages:
   - checks
 
-pytest:
-  stage: checks
-  script:
-    # Generate coverage data at the same time we run the tests
-    - pip install pytest pytest-cov
-    - python3 -m pytest --cov-report=html --cov=src
-  artifacts:
-      paths:
-        - coverage
-      expire_in: 30 days
+# pytest:
+#   stage: checks
+#   script:
+#     # Generate coverage data at the same time we run the tests
+#     - pip install pytest pytest-cov
+#     - python3 -m pytest --cov-report=html --cov=src
+#   artifacts:
+#       paths:
+#         - coverage
+#       expire_in: 30 days
     
 pylint:
   stage: checks
