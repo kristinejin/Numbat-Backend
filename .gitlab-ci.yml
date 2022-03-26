@@ -1,0 +1,39 @@
+image: python:latest
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python --version  # For debugging
+  - pip install -r requirements.txt #installs all the requirements
+
+stages:
+  - checks
+
+# pytest:
+#   stage: checks
+#   script:
+#     # Generate coverage data at the same time we run the tests
+#     - pip install pytest pytest-cov
+#     - python3 -m pytest --cov-report=html --cov=src
+#   artifacts:
+#       paths:
+#         - coverage
+#       expire_in: 30 days
+    
+pylint:
+  stage: checks
+  script:
+    - python3 -m flake8

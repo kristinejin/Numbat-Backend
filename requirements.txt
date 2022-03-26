@@ -1,0 +1,6 @@
+flake8==4.0.1
+Flask==2.0.3
+urllib3==1.26.8
+Werkzeug==2.0.3
+coverage==6.3.2
+urllib3==1.26.8
