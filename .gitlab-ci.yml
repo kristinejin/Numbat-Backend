@@ -22,18 +22,19 @@ before_script:
 stages:
   - checks
 
-# pytest:
-#   stage: checks
-#   script:
-#     # Generate coverage data at the same time we run the tests
-#     - pip install pytest pytest-cov
-#     - python3 -m pytest --cov-report=html --cov=src
+pytest:
+  stage: checks
+  script:
+    # Generate coverage data at the same time we run the tests
+    # - pip install pytest pytest-cov
+    # - python3 -m pytest --cov-report=html --cov=src
+    - python3 -m pytest
 #   artifacts:
 #       paths:
 #         - coverage
 #       expire_in: 30 days
     
-pylint:
+Flake8:
   stage: checks
   script:
     - python3 -m flake8
