@@ -1,8 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from flask import session
-from src.config import DATABASE_URL
 from src.auth import Login, CreateAccount
-import requests
 
 
 app = Flask(__name__)

@@ -1,4 +1,3 @@
-from test.errors import DuplicateFileError, WrongPassword
 from src.config import DATABASE_URL
 import psycopg2
 

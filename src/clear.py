@@ -10,7 +10,7 @@ def clear(ListOfUsernanames : list):
         cur = conn.cursor()
 
         #Query
-        sql = "Delete from userinfo where username = %s"
+        sql = "Delete from userinfo where username = (%s)"
 
         #Delete all the files
         for Username in ListOfUsernanames:
