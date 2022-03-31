@@ -84,23 +84,42 @@ def store():
     else:
         return render_template("storeMain.html")
 
-# @app.route("/Delete", methods=["GET","POST"])
-# def delete():
-#     if request.method == 'POST':
-#         FileName = request.form["FileName"]
-#         Password = request.form["Password"]
-#         url = "https://teamfudgeh17a.herokuapp.com/store"
-#         data = {"FileName":FileName, "Password": Password}
-#         try:
-#             r = requests.post(url,data)
-#             if r.status_code == 200:
-#                 return render_template("StoreOutput.html")
-#             else:
-#                 return render_template("Error.html", Error = 'Not able to save File')        
-#         except Exception as e:
-#             return render_template("Error.html", Error = e)         
-#     else:
-#         return render_template("storeMain.html")   
+@app.route("/Remove", methods=["GET","POST"])
+def delete():
+    if request.method == 'POST':
+        FileName = request.form["FileName"]
+        Password = request.form["Password"]
+        url = "https://teamfudgeh17a.herokuapp.com/remove"
+        data = {"FileName":FileName, "Password": Password}
+        try:
+            r = requests.post(url,data)
+            if r.status_code == 200:
+                print(r.status_code)
+                return render_template("RemoveOutput.html")        
+        except Exception as e:
+            return render_template("Error.html", Error = e)         
+    else:
+        return render_template("RemoveMain.html")   
+
+
+@app.route("/Search", methods=["GET","POST"])
+def search():
+    if request.method == 'POST':
+        sender_name = request.form["sender_name"]
+        issue_date = request.form["issue_date"]
+        Password = request.form["Password"]
+        url = "https://teamfudgeh17a.herokuapp.com/search"
+        data = {"issue_date":issue_date, "sender_name": sender_name, "Password": Password}
+        try:
+            r = requests.post(url,data)
+            if r.status_code == 200:
+                return render_template("SearchOutput.html", Files = r.text)
+            else:
+                return render_template("Error.html", Error = 'Not able to save File')        
+        except Exception as e:
+            return render_template("Error.html", Error = e)         
+    else:
+        return render_template("SearchMain.html") 
 
 if __name__ == '__main__':
     app.debug = True
