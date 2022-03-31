@@ -1,7 +1,5 @@
 [flake8]
 exclude =
-    auth_test.py
-    
     .git
 
 ignore = 
@@ -12,3 +10,5 @@ ignore =
     E11
     E711
     E128
+    F821
+    E712
