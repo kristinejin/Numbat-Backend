@@ -1,13 +1,19 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
 import requests
+import functools
 
 
 app = Flask(__name__)
 app.secret_key = "hello"
 
 def login_required(func):
-    return func
+    @functools.wraps(func)
+    def secure_log():
+        if "Username" not in session:
+            return redirect(url_for("UserLogin"))
+        return func()
+    return secure_log
 
 #Account Creation, Login
 @app.route("/")
@@ -22,7 +28,7 @@ def UserLogin():
         Password = request.form["Password"]
         try:
             Login(Username,Password)
-            session[Username] = Password
+            session["Username"] = Username
             return redirect(url_for("Home"))
         except Exception as e:
             return render_template("Error.html", Error = e)
@@ -36,21 +42,23 @@ def Register():
         Password = request.form["Password"]
         try:
             CreateAccount(Username,Password)
+            session["Username"] = Username
             return redirect(url_for("Home"))
         except Exception as e:
             return render_template("Error.html", Error = e)
     else:
         return render_template("RegisterHome.html")
 
-@app.route("/Home", methods=["POST", "GET"])
+@app.route("/Home", methods=["GET", "POST"])
 @login_required
 def Home():
     if request.method == 'POST':
-        pass
+        return "hello"
     else:
-        return render_template("HomePage.html")
+        return render_template("HomePage.html", Name=session["Username"])
 
 @app.route("/Extract", methods=["GET","POST"])
+@login_required
 def Extract():
     if request.method == 'POST':
         FileName = request.form["FileName"]
@@ -66,6 +74,7 @@ def Extract():
         return render_template("extractMain.html")
 
 @app.route("/Store", methods=["GET","POST"])
+@login_required
 def store():
     if request.method == 'POST':
         FileName = request.form["FileName"]
@@ -85,6 +94,7 @@ def store():
         return render_template("storeMain.html")
 
 @app.route("/Remove", methods=["GET","POST"])
+@login_required
 def delete():
     if request.method == 'POST':
         FileName = request.form["FileName"]
@@ -103,6 +113,7 @@ def delete():
 
 
 @app.route("/Search", methods=["GET","POST"])
+@login_required
 def search():
     if request.method == 'POST':
         sender_name = request.form["sender_name"]
