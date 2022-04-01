@@ -67,6 +67,7 @@ def Extract():
         data = {"FileName":FileName, "Password": Password}
         try:
             r = requests.post(url,data)
+            print(type(r.text))
             return render_template("ExtractOutput.html", XML = r.text)
         except Exception as e:
             return render_template("Error.html", Error = e)         
@@ -131,6 +132,16 @@ def search():
             return render_template("Error.html", Error = e)         
     else:
         return render_template("SearchMain.html") 
+
+@app.route("/Logout", methods=["GET","POST"])
+@login_required
+def logout():
+    if request.method == 'POST':
+        if request.form["Logout"] == 'Logout':
+            session.clear()
+            return redirect(url_for("UserLogin"))
+    else:
+        return render_template("Logout.html")
 
 if __name__ == '__main__':
     app.debug = True
