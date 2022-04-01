@@ -16,12 +16,12 @@ def check_okay(username: str, company_code: str, function_type: str):
     Exception:
         when connect to db failed
     """
-    
+
     USAGE_LIMIT = 5
 
     try:
         # Connect to DB
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        conn = psycopg2.connect(DATABASE_URL, sslmode="require")
 
         # Open a cursor for db operations
         cur = conn.cursor()
@@ -66,7 +66,7 @@ def check_okay(username: str, company_code: str, function_type: str):
             # Close DB connection
             cur.close()
             conn.close()
-            return 'Success'
+            return "Success"
             # final_return = 'Success'
 
     except Exception as e:

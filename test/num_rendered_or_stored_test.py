@@ -2,7 +2,6 @@ import pytest
 from src.FlaskApp import app
 from test.xml_str import xml_as_string
 from src.check_num_render_or_store import check_okay
-from src.auth import CreateAccount, Login
 import random
 import string
 
@@ -64,7 +63,3 @@ def test_store_too_may(Account, client):
 #     resp = client.post('/Render', data={'FileName': Filename, 'Password': Account[2], 'XML': xml_as_string})
 #     assert resp.status_code == 302
 #     assert check_okay(Account[0], Account[2], 'render') == 'fail'
-
-
-
-
