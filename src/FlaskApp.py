@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
+from json import dumps
 import requests
 import functools
 
@@ -142,6 +143,12 @@ def logout():
             return redirect(url_for("UserLogin"))
     else:
         return render_template("Logout.html")
+
+@app.route("/receive", methods=["POST"])
+def receive_data():
+    xml = request.form['xml_attachments']
+    userEmail = request.form['sender_address']
+    print(xml, userEmail)
 
 if __name__ == '__main__':
     app.debug = True
