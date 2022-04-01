@@ -29,16 +29,20 @@ def check_okay(username: str, company_code: str, function_type: str):
         if function_type == "store":
             # extract number of files stored with given company_code
             sql = "SELECT count(distinct file_name) FROM invoices WHERE password = %s"
-            val = company_code
+            val = [company_code]
             cur.execute(sql, list(val))
-            return_value = cur.fetchone()[0]
+            return_value = cur.fetchone()
+            if return_value is not None:
+                return_value = return_value[0]
 
         # Not sure how to do this becuase not sure how renders will be recorded
         else:
             sql = "SELECT sum(numrenders) OVER (partition by companycode) as totalrenders FROM userinfo WHERE companycode = %s"
-            val = company_code
+            val = [company_code]
             cur.execute(sql, list(val))
-            return_value = cur.fetchone()[0]
+            return_value = cur.fetchone()
+            if return_value is not None:
+                return_value = return_value[0]
 
         # final_return = None
 
@@ -48,7 +52,7 @@ def check_okay(username: str, company_code: str, function_type: str):
             conn.close()
             return "Fail"
             # final_return = 'Fail'
-        elif (return_value < USAGE_LIMIT or return_value == None) and function_type == "render":
+        elif (return_value < USAGE_LIMIT or return_value is None) and function_type == "render":
             sql = "UPDATE users SET numrenders = %s WHERE username = %s and companycode = %s"
             val = [return_value, username, company_code]
             cur.execute(sql, val)
