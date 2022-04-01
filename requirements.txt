@@ -6,3 +6,4 @@ coverage==6.3.2
 urllib3==1.26.8
 pytest
 psycopg2
+requests
