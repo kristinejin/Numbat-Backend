@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
+from src.check_num_render_or_store import check_okay
 import requests
 import functools
 
@@ -40,8 +41,9 @@ def Register():
     if request.method == 'POST':
         Username = request.form["UserName"]
         Password = request.form["Password"]
+        companycode = request.form["CompanyCode"]
         try:
-            CreateAccount(Username,Password)
+            CreateAccount(Username, Password, companycode)
             session["Username"] = Username
             return redirect(url_for("Home"))
         except Exception as e:
@@ -81,6 +83,10 @@ def store():
         FileName = request.form["FileName"]
         Password = request.form["Password"]
         Xml = request.form["XML"]
+
+        if check_okay('None', Password, "store") == 'Fail':
+            return render_template("Error.html", Error = 'Stored Invoice Quota is FULL')
+
         url = "https://teamfudgeh17a.herokuapp.com/store"
         data = {"FileName":FileName, "XML":Xml, "Password": Password}
         try:
