@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
 from json import dumps
+from src.receive import receiveAndStore
 import requests
 import functools
 
@@ -146,9 +147,18 @@ def logout():
 
 @app.route("/receive", methods=["POST"])
 def receive_data():
+   
     xml = request.form['xml_attachments']
-    userEmail = request.form['sender_address']
-    print(xml, userEmail)
+    email = request.form['sender_address']
+    
+    companyCode = receiveAndStore(email)
+
+    url = "https://teamfudgeh17a.herokuapp.com/store"
+    data = {"FileName":request.form['id'], "XML":xml, "Password": companyCode}
+    try:
+        r = requests.post(url,data)       
+    except Exception as e:
+        return render_template("Error.html", Error = e)         
 
 if __name__ == '__main__':
     app.debug = True
