@@ -52,7 +52,7 @@ def check_okay(username: str, company_code: str, function_type: str):
             conn.close()
             return "Fail"
             # final_return = 'Fail'
-        elif (return_value < USAGE_LIMIT or return_value is None) and function_type == "render":
+        elif (return_value < USAGE_LIMIT) and function_type == "render":
             sql = "UPDATE users SET numrenders = %s WHERE username = %s and companycode = %s"
             val = [return_value, username, company_code]
             cur.execute(sql, val)
