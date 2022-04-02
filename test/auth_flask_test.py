@@ -16,7 +16,7 @@ def test_home(client):
 def test_login(client,Account):
     resp = client.get('/Register')
     assert resp.status_code == 200
-    resp = client.post('/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': Account[2]})
+    resp = client.post('/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': Account[2], 'Email': Account[3]})
     assert resp.status_code == 302
     resp = client.get('/UserLogin')
     assert resp.status_code == 200
@@ -27,7 +27,7 @@ def test_login(client,Account):
 def test_register(client,Account):
     resp = client.get('/Register')
     assert resp.status_code == 200
-    resp = client.post('/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': Account[2]})
+    resp = client.post('/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': Account[2], 'Email': Account[3]})
     assert resp.status_code == 302
     ListOfUsrName.append(Account[0])
 
