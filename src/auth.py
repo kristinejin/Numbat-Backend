@@ -1,12 +1,11 @@
 from src.config import DATABASE_URL
 import psycopg2
-# import re
+import re
 from src.error import InputError
 
 CODE_LENGTH = 5
 
-# def CreateAccount(Username : str, Password: str, companycode: str, email: str):
-def CreateAccount(Username: str, Password: str, companycode: str):
+def CreateAccount(Username : str, Password: str, companycode: str, email: str):
     if not isinstance(Username, str):
         raise InputError(description="Only Strings Allowed")
 
@@ -18,10 +17,10 @@ def CreateAccount(Username: str, Password: str, companycode: str):
         raise InputError(description="Only Strings Allowed")
 
     # Email is valid
-    # if not re.match(
-    #     r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$", email
-    # ):
-    #     raise InputError(description="Invalid Email Provided")
+    if not re.match(
+        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$", email
+    ):
+        raise InputError(description="Invalid Email Provided")
 
     if not isinstance(companycode, str):
         raise InputError(description="Only Strings Allowed")
@@ -44,9 +43,9 @@ def CreateAccount(Username: str, Password: str, companycode: str):
         # sql = "INSERT INTO userinfo (username, password, companycode, numrenders, email) VALUES (%s, %s, %s, 0, %s)"
         # val = [Username, Password, companycode, email]
         sql = (
-            "INSERT INTO userinfo (username, password, companycode) VALUES (%s, %s, %s)"
+            "INSERT INTO userinfo (username, password, companycode, email) VALUES (%s, %s, %s, %s)"
         )
-        val = [Username, Password, companycode]
+        val = [Username, Password, companycode, email]
         cur.execute(sql, val)
         conn.commit()
         cur.close()
