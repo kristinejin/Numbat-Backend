@@ -47,8 +47,9 @@ def Register():
         Username = request.form["UserName"]
         Password = request.form["Password"]
         companycode = request.form["CompanyCode"]
+        email = request.form["Email"]
         try:
-            CreateAccount(Username, Password, companycode)
+            CreateAccount(Username, Password, companycode, email)
             session["Username"] = Username
             return redirect(url_for("Home"))
         except Exception as e:
