@@ -53,8 +53,9 @@ def check_okay(username: str, company_code: str, function_type: str):
             return "Fail"
             # final_return = 'Fail'
         elif (return_value < USAGE_LIMIT) and function_type == "render":
-            sql = "UPDATE users SET numrenders = %s WHERE username = %s and companycode = %s"
-            val = [return_value, username, company_code]
+            return_value += 1
+            sql = "UPDATE userinfo SET numrenders = %s WHERE companycode = %s"
+            val = [return_value, company_code]
             cur.execute(sql, val)
             # Close DB connection
             conn.commit()
@@ -70,7 +71,8 @@ def check_okay(username: str, company_code: str, function_type: str):
             # final_return = 'Success'
 
     except Exception as e:
-        print(e)
+        # print(e)
+        return e
 
     # finally:
     #     if final_return is not None:

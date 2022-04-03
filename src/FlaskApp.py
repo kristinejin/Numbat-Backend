@@ -5,6 +5,7 @@ from src.receive import receiveAndStore
 from src.check_num_render_or_store import check_okay
 import requests
 import functools
+import json
 
 
 app = Flask(__name__)
@@ -166,6 +167,7 @@ def logout():
     else:
         return render_template("Logout.html")
 
+
 @app.route("/receive", methods=["POST"])
 def receive_data():
    
@@ -188,6 +190,52 @@ def receive_data():
     else:
         return render_template("Error.html")      
 
-if __name__ == "__main__":
+@app.route("/Render", methods=["GET", "POST"])
+@login_required
+def rendering():
+    if request.method == 'POST':
+        FileName = request.form["FileName"]
+        Password = request.form["Password"]
+
+        # File type can only be pdf/html/json
+        FileType = request.form["FileType"]
+
+        extract_url = "https://teamfudgeh17a.herokuapp.com/extract"
+        extract_data = {"FileName": FileName, "Password": Password}
+
+        # API: https://app.swaggerhub.com/apis/r-kaisar/e-invoice-rendering/1.0.0#/rendering
+        rendering_upload_url = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/upload"
+        rendering_download_url = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/download"
+
+        try:
+            # get the invoice as a string in the storage db
+            file_str = requests.post(extract_url, extract_data)
+            # print(file_str.text)
+            # convert string to a binary xml file
+            with open("str_to_xml.xml", "w") as f:
+                f.write(str(file_str.text))
+            # payload for rendering upload request
+            # rendering upload ret type: {"file_ids": [int_file_id]}
+            pload = {'file': open('str_to_xml.xml', 'r')}
+            rendering_upload_request = requests.post(
+                rendering_upload_url, files=pload)
+            rendering_upload = json.loads(rendering_upload_request.text)
+            # call rendering download endpoint
+            # rendered file in rendering_download
+            rendering_download = requests.get(
+                rendering_download_url, params={"file_id": rendering_upload["file_ids"][0], "file_type": FileType})
+            assert rendering_download.status_code == 200
+            if check_okay("None", Password, "render") == "Fail":
+                return render_template("Error.html", Error="Rendered Invoice Quota is FULL")
+
+            return render_template("renderOutput.html", file_path=rendering_download.url)
+        except Exception as e:
+            return render_template("Error.html", Error=e)
+    else:
+        return render_template("renderMain.html")
+
+>>>>>>> src/FlaskApp.py
+
+if __name__ == '__main__':
     app.debug = True
     app.run()
