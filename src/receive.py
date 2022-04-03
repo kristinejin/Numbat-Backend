@@ -21,5 +21,3 @@ def receiveAndStore(email):
 
     except Exception as e:
         print(e)
-
-

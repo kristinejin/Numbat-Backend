@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
-# from json import dumps
+from json import dumps
 from src.receive import receiveAndStore
 import requests
 import functools
@@ -156,7 +156,8 @@ def receive_data():
     url = "https://teamfudgeh17a.herokuapp.com/store"
     data = {"FileName":request.form['id'], "XML":xml, "Password": companyCode}
     try:
-        # r = requests.post(url,data)       
+        r = requests.post(url,data)
+        jason.dumps(r)       
     except Exception as e:
         return render_template("Error.html", Error = e)         
 
