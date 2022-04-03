@@ -178,7 +178,7 @@ def receive_data():
     data = {"FileName":request.form['id'], "XML":xml, "Password": companyCode}
     try:
         r = requests.post(url,data)
-        jason.dumps(r)       
+        json.dumps(r)       
     except Exception as e:
         return render_template("Error.html", Error = e)         
 
