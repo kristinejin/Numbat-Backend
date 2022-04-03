@@ -170,22 +170,25 @@ def logout():
 
 @app.route("/receive", methods=["POST"])
 def receive_data():
+   
+    if request.method == "POST":
+        xml = request.json['xml_attachments']
+        email = request.json['sender_address']
+        
+        companyCode = receiveAndStore(email)
 
-    xml = request.json['xml_attachments']
-    email = request.json['sender_address']
-
-    companyCode = receiveAndStore(email)
-
-    url = "https://teamfudgeh17a.herokuapp.com/store"
-    data = {"FileName": request.json['processed_at_timestamp'],
-            "XML": xml, "Password": companyCode}
-    try:
-        r = requests.post(url, data)
-        if r.status_code == 200:
-            return 200
-    except Exception as e:
-        return render_template("Error.html", Error=e)
-
+        url = "https://teamfudgeh17a.herokuapp.com/store"
+        data = {"FileName": request.json['received_at_timestamp'], "XML":xml, "Password": companyCode}
+        try:
+            r = requests.post(url,data)
+            if r.status_code == 200:
+                return '200'
+            else:
+                return "Failed to receive"
+        except Exception as e:
+            return render_template("Error.html", Error = e)
+    else:
+        return render_template("Error.html")      
 
 @app.route("/Render", methods=["GET", "POST"])
 @login_required
@@ -230,7 +233,6 @@ def rendering():
             return render_template("Error.html", Error=e)
     else:
         return render_template("renderMain.html")
-
 
 if __name__ == '__main__':
     app.debug = True
