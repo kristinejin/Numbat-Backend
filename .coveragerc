@@ -1,0 +1,13 @@
+[html]
+directory = coverage
+
+
+[run]
+omit = 
+    src/echo.py
+    src/error.py
+
+
+[report]
+exclude_lines = 
+    if __name__ == .__main__.:
