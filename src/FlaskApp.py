@@ -234,6 +234,7 @@ def rendering():
     else:
         return render_template("renderMain.html")
 
+>>>>>>> src/FlaskApp.py
 
 if __name__ == '__main__':
     app.debug = True
