@@ -2,13 +2,13 @@ import psycopg2
 from src.config import DATABASE_URL
 
 
-def check_okay(username: str, company_code: str, function_type: str):
-    """given a company_code, and function_type return if the current function can be executed
+def checkQuota(username: str, companyCode: str, funcType: str):
+    """given a companyCode, and funcType return if the current function can be executed
 
     Args:
         username (str): the username of the user calling one of the functions
-        company_code (str): the file name that the user wants to extract
-        function_type (str): either 'store' or 'render'
+        companyCode (str): the file name that the user wants to extract
+        funcType (str): either 'store' or 'render'
 
     Returns:
         str: "Success" or "Fail"
@@ -26,36 +26,36 @@ def check_okay(username: str, company_code: str, function_type: str):
         # Open a cursor for db operations
         cur = conn.cursor()
 
-        if function_type == "store":
-            # extract number of files stored with given company_code
+        if funcType == "store":
+            # extract number of files stored with given companyCode
             sql = "SELECT count(distinct file_name) FROM invoices WHERE password = %s"
-            val = [company_code]
+            val = [companyCode]
             cur.execute(sql, list(val))
-            return_value = cur.fetchone()
-            if return_value is not None:
-                return_value = return_value[0]
+            retVal = cur.fetchone()
+            if retVal is not None:
+                retVal = retVal[0]
 
         # Not sure how to do this becuase not sure how renders will be recorded
         else:
             sql = "SELECT sum(numrenders) OVER (partition by companycode) as totalrenders FROM userinfo WHERE companycode = %s"
-            val = [company_code]
+            val = [companyCode]
             cur.execute(sql, list(val))
-            return_value = cur.fetchone()
-            if return_value is not None:
-                return_value = return_value[0]
+            retVal = cur.fetchone()
+            if retVal is not None:
+                retVal = retVal[0]
 
         # final_return = None
 
-        if return_value >= USAGE_LIMIT:
+        if retVal >= USAGE_LIMIT:
             # Close DB connection
             cur.close()
             conn.close()
             return "Fail"
             # final_return = 'Fail'
-        elif (return_value < USAGE_LIMIT) and function_type == "render":
-            return_value += 1
+        elif (retVal < USAGE_LIMIT) and funcType == "render":
+            retVal += 1
             sql = "UPDATE userinfo SET numrenders = %s WHERE companycode = %s"
-            val = [return_value, company_code]
+            val = [retVal, companyCode]
             cur.execute(sql, val)
             # Close DB connection
             conn.commit()
@@ -73,9 +73,3 @@ def check_okay(username: str, company_code: str, function_type: str):
     except Exception as e:
         # print(e)
         return e
-
-    # finally:
-    #     if final_return is not None:
-    #         return final_return
-    #     else:
-    #         return 'success'
