@@ -6,10 +6,12 @@ from src.check_num_render_or_store import checkQuota
 import requests
 import functools
 import json
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 app.secret_key = "hello"
+CORS(app)
 
 
 def loginRequired(func):
