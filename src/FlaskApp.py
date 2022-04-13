@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 from src.auth import Login, CreateAccount
 # from json import dumps
-from src.receive import receiveAndStore
+from src.other import receiveAndStore, companyCodeFromUsername
 from src.check_num_render_or_store import checkQuota
 import requests
 import functools
@@ -56,7 +56,7 @@ def Register():
             session["Username"] = Username
             return redirect(url_for("Home"))
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/registerError.html", Error=e)
     else:
         return render_template("RegisterHome.html")
 
@@ -74,15 +74,16 @@ def Home():
 @loginRequired
 def Extract():
     if request.method == "POST":
+        Username = session["Username"]
+        Password = companyCodeFromUsername(Username)
         FileName = request.form["FileName"]
-        Password = request.form["Password"]
         url = "https://teamfudgeh17a.herokuapp.com/extract"
         data = {"FileName": FileName, "Password": Password}
         try:
             r = requests.post(url, data)
             return render_template("ExtractOutput.html", XML=r.text)
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/extractError.html", Error=e)
     else:
         return render_template("extractMain.html")
 
@@ -91,9 +92,13 @@ def Extract():
 @loginRequired
 def store():
     if request.method == "POST":
+
         FileName = request.form["FileName"]
-        Password = request.form["Password"]
         Xml = request.form["XML"]
+
+        # Password = request.form["Password"]
+        Username = session["Username"]
+        Password = companyCodeFromUsername(Username)
 
         if checkQuota("None", Password, "store") == "Fail":
             return render_template("Error.html", Error="Stored Invoice Quota is FULL")
@@ -105,9 +110,9 @@ def store():
             if r.status_code == 200:
                 return render_template("StoreOutput.html")
             else:
-                return render_template("Error.html", Error="Not able to save File")
+                return render_template("/errors/storeError.html", Error="Not able to save File")
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/storeError.html", Error=e)
     else:
         return render_template("storeMain.html")
 
@@ -117,7 +122,10 @@ def store():
 def delete():
     if request.method == "POST":
         FileName = request.form["FileName"]
-        Password = request.form["Password"]
+        # Password = request.form["Password"]
+        Username = session["Username"]
+        Password = companyCodeFromUsername(Username)
+
         url = "https://teamfudgeh17a.herokuapp.com/remove"
         data = {"FileName": FileName, "Password": Password}
         try:
@@ -126,7 +134,7 @@ def delete():
                 print(r.status_code)
                 return render_template("RemoveOutput.html")
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/removeError.html", Error=e)
     else:
         return render_template("RemoveMain.html")
 
@@ -137,11 +145,14 @@ def search():
     if request.method == "POST":
         senderName = request.form["sender_name"]
         issueDate = request.form["issue_date"]
-        Password = request.form["Password"]
+        # Password = request.form["Password"]
+        Username = session["Username"]
+        Password = companyCodeFromUsername(Username)
+
         url = "https://teamfudgeh17a.herokuapp.com/search"
         data = {
             "issue_date": issueDate,
-            "senderName": senderName,
+            "sender_name": senderName,
             "Password": Password,
         }
         try:
@@ -149,9 +160,9 @@ def search():
             if r.status_code == 200:
                 return render_template("SearchOutput.html", Files=r.text)
             else:
-                return render_template("Error.html", Error="Not able to save File")
+                return render_template("/errors/searchError.html", Error="There's no file matching the keywords.")
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/searchError.html", Error=e)
     else:
         return render_template("SearchMain.html")
 
@@ -169,32 +180,36 @@ def logout():
 
 @app.route("/receive", methods=["POST"])
 def receive_data():
-   
+
     if request.method == "POST":
         xml = request.json['xml_attachments']
         email = request.json['sender_address']
-        
+
         companyCode = receiveAndStore(email)
 
         url = "https://teamfudgeh17a.herokuapp.com/store"
-        data = {"FileName": request.json['received_at_timestamp'], "XML":xml, "Password": companyCode}
+        data = {
+            "FileName": request.json['received_at_timestamp'], "XML": xml, "Password": companyCode}
         try:
-            r = requests.post(url,data)
+            r = requests.post(url, data)
             if r.status_code == 200:
                 return '200'
             else:
                 return "Failed to receive"
         except Exception as e:
-            return render_template("Error.html", Error = e)
+            return render_template("Error.html", Error=e)
     else:
-        return render_template("Error.html")      
+        return render_template("Error.html")
+
 
 @app.route("/Render", methods=["GET", "POST"])
 @loginRequired
 def rendering():
     if request.method == 'POST':
         FileName = request.form["FileName"]
-        Password = request.form["Password"]
+        # Password = request.form["Password"]
+        Username = session["Username"]
+        Password = companyCodeFromUsername(Username)
 
         # File type can only be pdf/html/json
         FileType = request.form["FileType"]
@@ -225,13 +240,14 @@ def rendering():
                 renderDownloadURL, params={"file_id": renderUpload["file_ids"][0], "file_type": FileType})
             assert rendering_download.status_code == 200
             if checkQuota("None", Password, "render") == "Fail":
-                return render_template("Error.html", Error="Rendered Invoice Quota is FULL")
+                return render_template("/errors/renderError.html", Error="Rendered Invoice Quota is FULL")
 
             return render_template("renderOutput.html", file_path=rendering_download.url)
         except Exception as e:
-            return render_template("Error.html", Error=e)
+            return render_template("/errors/renderError.html", Error=e)
     else:
         return render_template("renderMain.html")
+
 
 if __name__ == '__main__':
     app.debug = True
