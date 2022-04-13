@@ -112,8 +112,8 @@ def auth_passwordreset_request_base(email):
         user = [user for user in store["users"] if user["email"] == email["email"]]
 
         # send the code via email
-        sender = "" ###############################################################################
-        receivers = [email]]
+        sender = "teamfudge.contact@gmail.com"
+        receivers = [email]
         body_of_email = "This is your password reset code: " + str(reset_code)
 
         msg = MIMEText(body_of_email, "html")
@@ -122,8 +122,7 @@ def auth_passwordreset_request_base(email):
         msg["To"] = ",".join(receivers)
 
         s = smtplib.SMTP_SSL(host="smtp.gmail.com", port=465)
-        ########################################################################################
-        s.login(user="streams.team22@gmail.com", password="Seaniscool")
+        s.login(user="teamfudge.contact@gmail.com", password="Seng2021")
         s.sendmail(sender, receivers, msg.as_string())
         s.quit()
 
@@ -198,24 +197,24 @@ def auth_passwordreset_reset_base(reset_code, new_password):
 
     if email[0] is not None:
         try:
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cur = conn.cursor()
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cur = conn.cursor()
 
-        sql = "Update userinfo set password = %s where email = %s" 
-        val = [password, email]
+            sql = "Update userinfo set password = %s where email = %s" 
+            val = [password, email]
 
-        cur.execute(sql, val)
-        
-        sql = "Delete from reset_codes where code = %s"
-        val = [email]
+            cur.execute(sql, val)
+            
+            sql = "Delete from reset_codes where code = %s"
+            val = [email]
 
-        cur.execute(sql, val)
+            cur.execute(sql, val)
 
-        cur.close()
-        conn.close()
+            cur.close()
+            conn.close()
 
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
 
     return "Password Reset Successfully"
 
