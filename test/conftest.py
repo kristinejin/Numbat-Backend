@@ -10,9 +10,9 @@ def Account():
     Password = (''.join(random.choice(string.ascii_lowercase)
                 for i in range(10)))
     companycode = (''.join(random.choice(string.ascii_lowercase)
-                   for i in range(5)))
+                   for i in range(10)))
     email = (''.join(random.choice(string.ascii_lowercase)
-             for i in range(5))) + "@test.com"
+             for i in range(10))) + "@test.com"
     return(Username, Password, companycode, email)
 
 
@@ -23,9 +23,9 @@ def Account2():
     Password = (''.join(random.choice(string.ascii_lowercase)
                 for i in range(10)))
     companycode = (''.join(random.choice(string.ascii_lowercase)
-                   for i in range(5)))
+                   for i in range(10)))
     email = (''.join(random.choice(string.ascii_lowercase)
-             for i in range(5))) + "@test.com"
+             for i in range(15))) + "@test.com"
     return(Username, Password, companycode, email)
 
 
@@ -43,3 +43,35 @@ def invalidAccount():
     email = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
 
     return(Username, Password, companycode, email)
+
+
+@pytest.fixture
+def company():
+    name = (''.join(random.choice(string.ascii_lowercase) for i in range(10)))
+    abn = 12345678910
+    street = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    suburb = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    postcode = 2000
+    companycode = (''.join(random.choice(string.ascii_lowercase)
+                   for i in range(5)))
+    company_det = {
+        "name": name,
+        "abn": abn,
+        "street": street,
+        "suburb": suburb,
+        "postcode": postcode,
+        "companycode": companycode
+    }
+    return company_det
+
+
+@pytest.fixture
+def companyFlask():
+    name = (''.join(random.choice(string.ascii_lowercase) for i in range(10)))
+    abn = 12345678910
+    street = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    suburb = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    postcode = 2000
+    companycode = (''.join(random.choice(string.ascii_lowercase)
+                   for i in range(5)))
+    return(name, abn, street, suburb, postcode, companycode)

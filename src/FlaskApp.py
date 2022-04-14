@@ -1,11 +1,12 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from src.auth import Login, CreateAccount
+from src.auth import Login, CreateAccount, createCompany
 # from json import dumps
 from src.other import receiveAndStore, companyCodeFromUsername
 from src.check_num_render_or_store import checkQuota
 import requests
 import functools
 import json
+from json import dumps
 from flask_cors import CORS
 
 
@@ -61,6 +62,27 @@ def Register():
             return render_template("/errors/registerError.html", Error=e)
     else:
         return render_template("RegisterHome.html")
+
+
+@app.route("/create/company", methods=["POST"])
+def createCompanyRoute():
+    """
+    required field includes:
+    # name
+    # abn
+    # street
+    # suburb
+    # postcode
+    # companyCode
+    """
+    name = request.form["name"]
+    abn = request.form["abn"]
+    street = request.form["street"]
+    suburb = request.form["suburb"]
+    postcode = request.form["postcode"]
+    companyCode = request.form["companyCode"]
+    return dumps(createCompany(
+        name, abn, street, suburb, postcode, companyCode))
 
 
 @app.route("/Home", methods=["GET", "POST"])
