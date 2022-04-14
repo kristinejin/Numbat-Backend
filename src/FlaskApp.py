@@ -6,6 +6,7 @@ from src.check_num_render_or_store import checkQuota
 import requests
 import functools
 import json
+from json import dumps
 
 
 app = Flask(__name__)
@@ -248,17 +249,17 @@ def rendering():
     else:
         return render_template("renderMain.html")
 
-@APP.route("passwordreset/request", methods=["POST"])
+@app.route("/passwordreset/request", methods=["POST"])
 def auth_passwordreset_request_v1():
 
     email = request.get_json("email")
 
     results = auth_passwordreset_request_base(email)
 
-    return dumps({"reset_code_status": results})
+    return results
 
 
-@APP.route("passwordreset/reset", methods=["POST"])
+@app.route("/passwordreset/reset", methods=["POST"])
 def auth_passwordreset_reset_v1():
 
     inputs = request.get_json()
@@ -266,8 +267,7 @@ def auth_passwordreset_reset_v1():
     new_password = inputs["new_password"]
 
     results = auth_passwordreset_reset_base(reset_code, new_password)
-
-    return dumps({"reset_status": results})
+    return results
 
 
 if __name__ == '__main__':

@@ -67,23 +67,22 @@ def checkUnusedUsername(username: str):
     except Exception as e:
         print(e)
 
-def checkUniqueEmail(email: str):
+def checkUniqueEmail(email):
 
     try:
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cur = conn.cursor()
 
-        sql = "SELECT username FROM userinfo WHERE email = %s"
+        sql = "SELECT count(username) FROM userinfo WHERE email = %s"
         val = [email]
 
         cur.execute(sql, val)
 
-        email = cur.fetchone()
-
+        count = cur.fetchall()
+        print(count)
         cur.close()
         conn.close()
-
-        if email[0] is NULL:
+        if count[0][0] == 1:
             return "Continue"
         else:
             return "Failed Check"

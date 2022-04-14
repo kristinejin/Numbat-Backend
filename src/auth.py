@@ -3,8 +3,12 @@ import psycopg2
 import re
 from src.error import InputError
 from src.other import checkUnusedUsername, checkUniqueEmail
+import random
+import smtplib, ssl
+from email.mime.text import MIMEText
 
-COMPANY_CODE_LENGTH = 5
+
+COMPANY_CODE_LENGTH = 20
 USERNAME_OR_PASSWORD_LENGTH = 12
 
 
@@ -115,53 +119,49 @@ def auth_passwordreset_request_base(email):
     Returns:
         dict: empty
     """
-
+    email = email["email"]
     # generate a random 5 digit code to send to the user
     reset_code = random.randint(10000, 99999)
 
     # only send the reset code if the email belongs to a user
     if (checkUniqueEmail(email) == "Continue"):
 
-        user = [user for user in store["users"] if user["email"] == email["email"]]
-
         # send the code via email
-        sender = "teamfudge.contact@gmail.com"
+        sender = "numbathelp.contact@gmail.com"
         receivers = [email]
         body_of_email = "This is your password reset code: " + str(reset_code)
 
         msg = MIMEText(body_of_email, "html")
-        msg["Subject"] = "Numbat E-invoice Solutions account reset code"
+        msg["Subject"] = "Numbat Solutions account reset code"
         msg["From"] = sender
         msg["To"] = ",".join(receivers)
 
         s = smtplib.SMTP_SSL(host="smtp.gmail.com", port=465)
-        s.login(user="teamfudge.contact@gmail.com", password="Seng2021")
+        s.login(user="numbathelp.contact@gmail.com", password="Seng2021")
         s.sendmail(sender, receivers, msg.as_string())
         s.quit()
+
 
         # store only the most recent reset code
         try:
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cur = conn.cursor()
+            
+            sql = "INSERT INTO reset_codes VALUES (%s, %s)" 
+            val = (email, str(reset_code))
 
-            sql = "INSERT INTO reset_codes (email, code) VALUES (%s, %s)" 
-            val = [email, reset_code]
-
-            cur.execute(sql, val)
+            cur.execute(sql, list(val))
+            conn.commit()
             cur.close()
             conn.close()
 
         except Exception as e:
             print(e)
 
-        # # Remove all active sessions that belong to the user
-        # store["active_sessions"] = [
-        #     session
-        #     for session in store["active_sessions"]
-        #     if session["auth_user_id"] != user[0]["u_id"]
-        # ]
-
-    return "Reset Code has been sent"
+        return "Reset Code has been sent"
+    else:
+        return "Failed"
+    
 
 # Create table reset_codes (
 # email text,
@@ -182,22 +182,24 @@ def auth_passwordreset_reset_base(reset_code, new_password):
     """
 
     # check for valid reset code
+    print(new_password)
+    print(reset_code)
     try:
         reset_code = int(reset_code)
     except ValueError as e:
         raise InputError(description="Invalid password reset code") from e
-
-    if reset_code not in store["reset_codes"].values():
-        raise InputError(description="Invalid password reset code")
+    print("HERE 1")
     # check for valid password length
-    if len(new_password) > PASSWORD_LENGTH:
-        raise InputError(description="Password cannot be more than " + PASSWORD_LENGTH + " characters")
+    if len(new_password) > USERNAME_OR_PASSWORD_LENGTH:
+        raise InputError(description="Password cannot be more than " + USERNAME_OR_PASSWORD_LENGTH + " characters")
 
+    email = "None"
+    print("HERE 2")
     try:
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cur = conn.cursor()
-
-        sql = "select email from reset_codes where code = %s)" 
+        print("HERE 3")
+        sql = "select email from reset_codes where code = %s" 
         val = [reset_code]
 
         cur.execute(sql, val)
@@ -208,28 +210,37 @@ def auth_passwordreset_reset_base(reset_code, new_password):
     except Exception as e:
         print(e)
 
-    if email[0] is not None:
-        try:
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cur = conn.cursor()
+    print("HERE 4")
+    
+    if email != "None":
+        if email != []:
+            try:
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cur = conn.cursor()
+                print("HERE 5")
+                sql = "Update userinfo set password = %s where email = %s" 
+                print(new_password)
+                print(email[0][0])
+                print("Pls")
+                val = (new_password, email[0][0])
 
-            sql = "Update userinfo set password = %s where email = %s" 
-            val = [password, email]
+                cur.execute(sql, list(val))
+                
+                sql = "Delete from reset_codes where email = %s"
+                val = [email[0][0]]
+                print("HERE 6")
+                cur.execute(sql, list(val))
+                conn.commit()
+                cur.close()
+                conn.close()
 
-            cur.execute(sql, val)
-            
-            sql = "Delete from reset_codes where code = %s"
-            val = [email]
-
-            cur.execute(sql, val)
-
-            cur.close()
-            conn.close()
-
-        except Exception as e:
-            print(e)
-
-    return "Password Reset Successfully"
+            except Exception as e:
+                print(e)
+        
+            return "Password Reset Successfully"
+        return "Invalid Code"
+    else:
+        return "Invalid Code"
 
 
 if __name__ == "__main__":
