@@ -4,7 +4,7 @@ import re
 from src.error import InputError
 from src.other import checkUnusedUsername, checkUniqueEmail, checkUniqueCompanyName, checkUniqueCompanyCode
 import random
-import smtplib, ssl
+import smtplib
 from email.mime.text import MIMEText
 
 

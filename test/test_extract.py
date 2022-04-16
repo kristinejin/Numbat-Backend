@@ -1,8 +1,8 @@
 from test.xml_str_for_search import generate_random_date, generate_random_name, generate_unique_xml
 import pytest
 from src.FlaskApp import app
-from test.xml_str import xml_as_string
-from src.check_num_render_or_store import checkQuota
+# from test.xml_str import xml_as_string
+# from src.check_num_render_or_store import checkQuota
 import random
 import string
 
