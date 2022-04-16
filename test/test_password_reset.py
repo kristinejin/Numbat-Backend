@@ -1,14 +1,14 @@
-import pytest
-import random
-import string
-from src.FlaskApp import app
-from src.clear import clear
-from test.xml_str import xml_as_string
-from src.other import checkUniqueEmail
+# import pytest
+# import random
+# import string
+# from src.FlaskApp import app
+# from src.clear import clear
+# from test.xml_str import xml_as_string
+# from src.other import checkUniqueEmail
 
-@pytest.fixture
-def client():
-    return app.test_client()
+# @pytest.fixture
+# def client():
+#     return app.test_client()
 
 
 # def test_register_anonymous(client,Account):
@@ -47,11 +47,11 @@ def client():
 #     print(resp.status_code)
 #     assert 10 == 2
 
-def test_reset_code_works(client):
-    resp = client.post('/passwordreset/reset', json={"reset_code": "36810", "new_password": "new_pass"})
-    print(resp.text)
-    print(resp.data)
-    assert 10 == 2
+# def test_reset_code_works(client):
+#     resp = client.post('/passwordreset/reset', json={"reset_code": "36810", "new_password": "new_pass"})
+#     print(resp.text)
+#     print(resp.data)
+#     assert 10 == 2
 
 # email = "matthew.druckman@gmail.com"
 # solution = checkUniqueEmail(email)

@@ -182,23 +182,18 @@ def auth_passwordreset_reset_base(reset_code, new_password):
     """
 
     # check for valid reset code
-    print(new_password)
-    print(reset_code)
     try:
         reset_code = int(reset_code)
     except ValueError as e:
         raise InputError(description="Invalid password reset code") from e
-    print("HERE 1")
     # check for valid password length
     if len(new_password) > USERNAME_OR_PASSWORD_LENGTH:
         raise InputError(description="Password cannot be more than " + USERNAME_OR_PASSWORD_LENGTH + " characters")
 
     email = "None"
-    print("HERE 2")
     try:
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cur = conn.cursor()
-        print("HERE 3")
         sql = "select email from reset_codes where code = %s" 
         val = [reset_code]
 
@@ -209,26 +204,19 @@ def auth_passwordreset_reset_base(reset_code, new_password):
 
     except Exception as e:
         print(e)
-
-    print("HERE 4")
     
     if email != "None":
         if email != []:
             try:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cur = conn.cursor()
-                print("HERE 5")
                 sql = "Update userinfo set password = %s where email = %s" 
-                print(new_password)
-                print(email[0][0])
-                print("Pls")
                 val = (new_password, email[0][0])
 
                 cur.execute(sql, list(val))
                 
                 sql = "Delete from reset_codes where email = %s"
                 val = [email[0][0]]
-                print("HERE 6")
                 cur.execute(sql, list(val))
                 conn.commit()
                 cur.close()
