@@ -79,10 +79,9 @@ def checkUniqueEmail(email):
         cur.execute(sql, val)
 
         count = cur.fetchall()
-        print(count)
         cur.close()
         conn.close()
-        if count[0][0] == 1:
+        if count[0][0] == 0:
             return "Continue"
         else:
             return "Failed Check"
@@ -126,7 +125,6 @@ def checkUniqueCompanyCode(code: str):
         cur.execute(sql, val)
 
         code = cur.fetchone()
-        print(code)
         cur.close()
         conn.close()
 
