@@ -23,7 +23,7 @@ def test_register(client, Account, companyFlask):
     assert company.status_code == 200
     resp = client.post(
         '/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': companyFlask[5], 'Email': Account[3]})
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     ListOfUsrName.append(Account[0])
     companies.append(companyFlask[0])
 
@@ -34,7 +34,7 @@ def test_login(client, Account, companyFlask):
     assert company.status_code == 200
     resp = client.post(
         '/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': companyFlask[5], 'Email': Account[3]})
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     resp = client.post(
         '/UserLogin', data={'UserName': Account[0], 'Password': Account[1]})
     assert resp.status_code == 200

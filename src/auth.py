@@ -93,7 +93,7 @@ def Login(Username: str, Password: str):
         returnvalues = cur.fetchone()
 
         if returnvalues == None:
-            raise Exception(description="Incorrect Details")
+            raise InputError(description="Incorrect Username or Password")
 
         cur.close()
         conn.close()
