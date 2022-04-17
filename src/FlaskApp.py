@@ -1,13 +1,14 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, send_file
 from src.auth import Login, CreateAccount, createCompany
-# from json import dumps
 from src.other import receiveAndStore, companyCodeFromUsername
+from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
 import requests
 import functools
-import json
+from io import BytesIO
 from json import dumps
 from flask_cors import CORS
+from src.error import InputError
 
 
 app = Flask(__name__)
@@ -40,7 +41,7 @@ def UserLogin():
         try:
             Login(Username, Password)
             session["Username"] = Username
-            return redirect(url_for("Home"))
+            return dumps({'loginStatus': True})
         except Exception as e:
             return render_template("Error.html", Error=e)
     else:
@@ -64,7 +65,7 @@ def Register():
         return render_template("RegisterHome.html")
 
 
-@app.route("/create/company", methods=["POST"])
+@app.route("/register/company", methods=["POST"])
 def createCompanyRoute():
     """
     required field includes:
@@ -169,7 +170,6 @@ def search():
     if request.method == "POST":
         senderName = request.form["sender_name"]
         issueDate = request.form["issue_date"]
-        # Password = request.form["Password"]
         Username = session["Username"]
         Password = companyCodeFromUsername(Username)
 
@@ -231,46 +231,93 @@ def receive_data():
 def rendering():
     if request.method == 'POST':
         FileName = request.form["FileName"]
-        # Password = request.form["Password"]
         Username = session["Username"]
         Password = companyCodeFromUsername(Username)
 
         # File type can only be pdf/html/json
-        FileType = request.form["FileType"]
+        # Make filetype lowercase
+        # FileType = request.form["FileType"]
+        # FileType.lower()
 
         extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
         extractData = {"FileName": FileName, "Password": Password}
 
         # API: https://app.swaggerhub.com/apis/r-kaisar/e-invoice-rendering/1.0.0#/rendering
-        renderUploadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/upload"
-        renderDownloadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/download"
+        # renderUploadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/upload"
+        # renderDownloadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/download"
+        renderUploadURL = "https://www.invoicerendering.com/einvoices?renderType=pdf&lang=en"
 
         try:
             # get the invoice as a string in the storage db
-            fileStr = requests.post(extractURL, extractData)
-            # print(fileStr.text)
+            fileStr = requests.post(extractURL, data=extractData)
+            # return fileStr.text
             # convert string to a binary xml file
             with open("str_to_xml.xml", "w") as f:
                 f.write(str(fileStr.text))
             # payload for rendering upload request
             # rendering upload ret type: {"file_ids": [int_file_id]}
-            pload = {'file': open('str_to_xml.xml', 'r')}
+            pload = {'xml': open('str_to_xml.xml', 'rb')}
             renderUploadRequest = requests.post(
                 renderUploadURL, files=pload)
-            renderUpload = json.loads(renderUploadRequest.text)
-            # call rendering download endpoint
-            # rendered file in rendering_download
-            rendering_download = requests.get(
-                renderDownloadURL, params={"file_id": renderUpload["file_ids"][0], "file_type": FileType})
-            assert rendering_download.status_code == 200
-            if checkQuota("None", Password, "render") == "Fail":
-                return render_template("/errors/renderError.html", Error="Rendered Invoice Quota is FULL")
-
-            return render_template("renderOutput.html", file_path=rendering_download.url)
+            if renderUploadRequest.status_code == 200:
+                # do the render quota thing
+                if checkQuota("None", Password, "render") == "Fail":
+                    raise Exception(
+                        "Invoice cannot be rendered: Account Limit Reached")
+                return send_file(BytesIO(renderUploadRequest.content), mimetype='application/pdf')
+                # as_attachment=True, download_name='static_fname'
+            return dumps(renderUploadRequest)
         except Exception as e:
-            return render_template("/errors/renderError.html", Error=e)
+            raise e
     else:
         return render_template("renderMain.html")
+
+
+@app.route("/Create", methods=["POST"])
+@loginRequired
+def invoice_create_route():
+    # https://app.swaggerhub.com/apis/SENG2021-DONUT/e-invoice_creation/1.0.0#/XML%20Conversion/jsonconvert
+    pload = request.get_json()
+    fileName = pload['fileName']
+    Username = session["Username"]
+    supplierCompanyCode = companyCodeFromUsername(Username)
+    invoiceDict = invoiceCreate(pload, supplierCompanyCode)
+    # TODO: required info:
+    """
+    * General Info:
+    fileName: name of the file to be stored
+    IssueDate (input format: yyyy-mm-dd)
+    CustomerRegistration (trading name of the customer / buyer)
+    CustomerStreet
+    CustomerCity
+    CustomerPost
+    * For invoice total: 
+    int: TaxableAmount (total price of all purchases without the gst)
+    int: PayableAmount (total price includes gst)
+    * For a single product on invoice: 
+    InvoiceName (name of product)
+    int: InvoiceQuantity (quantity of a single product) -> InvoiceQuantity2..n
+    int: InvoicePriceAmount (price/unit of a single product)
+    """
+
+    createUrl = "https://seng-donut-deployment.herokuapp.com/json/convert"
+    r = requests.post(
+        createUrl, json=invoiceDict)
+
+    if r.status_code == 200:
+        if checkQuota("None", supplierCompanyCode, "store") == "Fail":
+            raise InputError("Invoice cannot be stored: Account Limit Reached")
+
+        storeUrl = "https://teamfudgeh17a.herokuapp.com/store"
+        data = {"FileName": fileName, "XML": r.content.decode('ascii'),
+                "Password": supplierCompanyCode}
+        storeResp = requests.post(storeUrl, data=data)
+        if storeResp.status_code != 200:
+            raise InputError("Invoice cannot be stored")
+        return send_file(BytesIO(r.content), mimetype='text/xml', as_attachment=True, download_name=f"{fileName}.xml")
+    else:
+        raise InputError(
+            description="Invoice cannot be created: Duplicated Filename or Invalid XML format")
 
 
 if __name__ == '__main__':
