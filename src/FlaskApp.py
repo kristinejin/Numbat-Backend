@@ -1,6 +1,6 @@
 # from tkinter.tix import InputOnly
 from flask import Flask, request, render_template, redirect, url_for, session, send_file
-from src.auth import Login, CreateAccount, createCompany, auth_passwordreset_request_base, auth_passwordreset_reset_base
+from src.auth import Login, CreateAccount, createCompany #, auth_passwordreset_request_base, auth_passwordreset_reset_base
 from src.other import receiveAndStore, companyCodeFromUsername
 from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota

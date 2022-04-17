@@ -1,12 +1,12 @@
-import pytest
-from src.FlaskApp import app
-from src.clear import clear, clear_company
-import json
-from src.select_all import selectAll
+# import pytest
+# from src.FlaskApp import app
+# from src.clear import clear, clear_company
+# import json
+# from src.select_all import selectAll
 
-@pytest.fixture
-def client():
-    return app.test_client()
+# @pytest.fixture
+# def client():
+#     return app.test_client()
 
 # def test_Test_route(client, Account, companyFlask):
 #     company = client.post('/create/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],

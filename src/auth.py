@@ -188,8 +188,6 @@ def auth_passwordreset_request_base(email):
     # only send the reset code if the email belongs to a user
     if (checkUniqueEmail(email) == "Continue"):
 
-        user = [user for user in store["users"] if user["email"] == email["email"]]
-
         # send the code via email
         sender = "" ###############################################################################
         receivers = [email]

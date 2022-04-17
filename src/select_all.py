@@ -1,7 +1,5 @@
 from src.config import DATABASE_URL
 import psycopg2
-import re
-from src.error import InputError
 
 def selectAll(companycode: str):
 
@@ -29,4 +27,3 @@ def selectAll(companycode: str):
 
     except Exception as e:
         raise e
-
