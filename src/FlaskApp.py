@@ -95,7 +95,7 @@ def createCompanyRoute():
 
 
 @app.route("/Home", methods=["POST"])
-@loginRequired
+# @loginRequired
 def Home():
     # Username = session["Username"]
     Username = request.form["UserName"]
