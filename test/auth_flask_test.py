@@ -18,8 +18,8 @@ def test_home(client):
 
 
 def test_register(client, Account, companyFlask):
-    company = client.post('/create/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
-                                                   'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5]})
+    company = client.post('/register/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
+                                                     'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5]})
     assert company.status_code == 200
     resp = client.post(
         '/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': companyFlask[5], 'Email': Account[3]})
@@ -29,15 +29,15 @@ def test_register(client, Account, companyFlask):
 
 
 def test_login(client, Account, companyFlask):
-    company = client.post('/create/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
-                                                   'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5]})
+    company = client.post('/register/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
+                                                     'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5]})
     assert company.status_code == 200
     resp = client.post(
         '/Register', data={'UserName': Account[0], 'Password': Account[1], 'CompanyCode': companyFlask[5], 'Email': Account[3]})
     assert resp.status_code == 302
     resp = client.post(
         '/UserLogin', data={'UserName': Account[0], 'Password': Account[1]})
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     ListOfUsrName.append(Account[0])
     companies.append(companyFlask[0])
 

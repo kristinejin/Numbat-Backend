@@ -23,8 +23,8 @@ def test_store_zero(Account):
 def test_store_one(Account, companyFlask, client):
     Filename = (''.join(random.choice(string.ascii_lowercase)
                 for i in range(9)))
-    company = client.post('/create/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
-                                                   'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5][:3]})
+    company = client.post('/register/company', data={'name': companyFlask[0], 'abn': companyFlask[1], 'street': companyFlask[2],
+                                                     'suburb': companyFlask[3], 'postcode': companyFlask[4], 'companyCode': companyFlask[5][:3]})
     assert company.status_code == 200
     print(company.get_data)
     #assert json.load(company.get_data())['company_created'] == True
