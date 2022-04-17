@@ -97,7 +97,8 @@ def createCompanyRoute():
 @app.route("/Home", methods=["POST"])
 @loginRequired
 def Home():
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = request.form["UserName"]
     companyCode = companyCodeFromUsername(Username)
     retVal = selectAll(companyCode)
     return dumps({"invoices": retVal})
@@ -354,9 +355,10 @@ def invoice_create_route():
 
 
 @app.route("/Test", methods=["POST"])
-@loginRequired
+# @loginRequired
 def userinfo_return():
-    Username = session["Username"]
+    Username = request.form["UserName"]
+    # Username = session["Username"]
 
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
