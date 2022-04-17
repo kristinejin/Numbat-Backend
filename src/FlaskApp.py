@@ -1,9 +1,10 @@
 # from tkinter.tix import InputOnly
 from flask import Flask, request, render_template, redirect, url_for, session, send_file
-from src.auth import Login, CreateAccount, createCompany
+from src.auth import Login, CreateAccount, createCompany #, auth_passwordreset_request_base, auth_passwordreset_reset_base
 from src.other import receiveAndStore, companyCodeFromUsername
 from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
+from src.select_all import selectAll
 import requests
 import functools
 from io import BytesIO
@@ -93,13 +94,15 @@ def createCompanyRoute():
         name, abn, street, suburb, postcode, companyCode))
 
 
-@app.route("/Home", methods=["GET", "POST"])
-@loginRequired
+@app.route("/Home", methods=["POST"])
+# @loginRequired
 def Home():
-    if request.method == "POST":
-        return "hello"
-    else:
-        return render_template("HomePage.html", Name=session["Username"])
+    # Username = session["Username"]
+    Username = request.form["UserName"]
+    companyCode = companyCodeFromUsername(Username)
+    retVal = selectAll(companyCode)
+    return dumps({"invoices": retVal})
+
 
 
 @app.route("/Extract", methods=["POST"])
@@ -352,9 +355,10 @@ def invoice_create_route():
 
 
 @app.route("/Test", methods=["POST"])
-@loginRequired
+# @loginRequired
 def userinfo_return():
-    Username = session["Username"]
+    Username = request.form["UserName"]
+    # Username = session["Username"]
 
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
@@ -376,6 +380,28 @@ def userinfo_return():
     conn.close()
 
     return dumps({"userinfo": {"username": account[0], "password": account[1], "numrenders": account[2], "email": account[3]}})
+
+
+# @APP.route("passwordreset/request", methods=["POST"])
+# def auth_passwordreset_request_v1():
+
+#     email = request.get_json("email")
+
+#     results = auth_passwordreset_request_base(email)
+
+#     return dumps({"reset_code_status": results})
+
+
+# @app.route("passwordreset/reset", methods=["POST"])
+# def auth_passwordreset_reset_v1():
+
+#     inputs = request.get_json()
+#     reset_code = inputs["reset_code"]
+#     new_password = inputs["new_password"]
+
+#     results = auth_passwordreset_reset_base(reset_code, new_password)
+
+#     return dumps({"reset_status": results})
 
 
 if __name__ == '__main__':
