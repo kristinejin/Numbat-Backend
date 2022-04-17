@@ -2,11 +2,7 @@ from src.config import DATABASE_URL
 import psycopg2
 import re
 from src.error import InputError
-<<<<<<< HEAD
-from src.other import checkUniqueEmail
-=======
 from src.other import checkUnusedUsername, checkUniqueEmail, checkUniqueCompanyName, checkUniqueCompanyCode
->>>>>>> main
 
 COMPANY_CODE_LENGTH = 20
 USERNAME_OR_PASSWORD_LENGTH = 12
@@ -196,7 +192,7 @@ def auth_passwordreset_request_base(email):
 
         # send the code via email
         sender = "" ###############################################################################
-        receivers = [email]]
+        receivers = [email]
         body_of_email = "This is your password reset code: " + str(reset_code)
 
         msg = MIMEText(body_of_email, "html")
@@ -281,24 +277,24 @@ def auth_passwordreset_reset_base(reset_code, new_password):
 
     if email[0] is not None:
         try:
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cur = conn.cursor()
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cur = conn.cursor()
 
-        sql = "Update userinfo set password = %s where email = %s" 
-        val = [password, email]
+            sql = "Update userinfo set password = %s where email = %s" 
+            val = [password, email]
 
-        cur.execute(sql, val)
-        
-        sql = "Delete from reset_codes where code = %s"
-        val = [email]
+            cur.execute(sql, val)
+            
+            sql = "Delete from reset_codes where code = %s"
+            val = [email]
 
-        cur.execute(sql, val)
+            cur.execute(sql, val)
 
-        cur.close()
-        conn.close()
+            cur.close()
+            conn.close()
 
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
 
     return "Password Reset Successfully"
 

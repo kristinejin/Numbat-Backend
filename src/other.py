@@ -30,7 +30,7 @@ def companyCodeFromUsername(username: str):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cur = conn.cursor()
 
-        sql = "SELECT password FROM userinfo WHERE username = %s"
+        sql = "SELECT companycode FROM userinfo WHERE username = %s"
         val = [username]
 
         cur.execute(sql, val)
@@ -39,7 +39,7 @@ def companyCodeFromUsername(username: str):
 
         cur.close()
         conn.close()
-
+        print(companyCode)
         return companyCode[0]
 
     except Exception as e:
