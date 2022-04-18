@@ -89,6 +89,28 @@ def checkUniqueEmail(email):
     except Exception as e:
         print(e)
 
+def checkEmailExists(email):
+
+    try:
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cur = conn.cursor()
+
+        sql = "SELECT count(username) FROM userinfo WHERE email = %s"
+        val = [email]
+
+        cur.execute(sql, val)
+
+        count = cur.fetchall()
+        cur.close()
+        conn.close()
+        if count[0][0] == 1:
+            return "Continue"
+        else:
+            return "Failed Check"
+
+    except Exception as e:
+        print(e)
+
 
 def checkUniqueCompanyName(name: str):
     try:

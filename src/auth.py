@@ -2,7 +2,7 @@ from src.config import DATABASE_URL
 import psycopg2
 import re
 from src.error import InputError
-from src.other import checkUnusedUsername, checkUniqueEmail, checkUniqueCompanyName, checkUniqueCompanyCode
+from src.other import checkUnusedUsername, checkUniqueEmail, checkUniqueCompanyName, checkUniqueCompanyCode, checkEmailExists
 import random
 import smtplib
 from email.mime.text import MIMEText
@@ -188,9 +188,8 @@ def auth_passwordreset_request_base(email):
     email = email["email"]
     # generate a random 5 digit code to send to the user
     reset_code = random.randint(10000, 99999)
-
     # only send the reset code if the email belongs to a user
-    if (checkUniqueEmail(email) == "Continue"):
+    if (checkEmailExists(email) == "Continue"):
 
         # send the code via email
         sender = "numbathelp.contact@gmail.com"
