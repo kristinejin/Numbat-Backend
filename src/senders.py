@@ -69,6 +69,7 @@ def checkSenderAccess(receiverCompanyCode, senderCompanyCode):
         data = cur.fetchone()
         cur.close()
         conn.close()
+
         if data == None:
             return {
                 'isAuthorised': False

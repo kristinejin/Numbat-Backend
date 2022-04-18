@@ -1,7 +1,11 @@
 CREATE TABLE UserInfo(
-    Username VARCHAR(12) NOT NULL,
-    Password VARCHAR(12) NOT NULL,
-    UNIQUE (Username)
+    Username TEXT NOT NULL,
+    Password TEXT NOT NULL,
+    CompanyCode TEXT NOT NULL,
+    email TEXT NOT NULL,
+    numrenders integer 0,
+    resetcode text,
+    UNIQUE (Username, email),
 );
 CREATE TABLE senders(
     owner text NOT NULL,

@@ -38,7 +38,6 @@ def companyCodeFromUsername(username: str):
 
         cur.close()
         conn.close()
-        print(companyCode)
         return companyCode[0]
 
     except Exception as e:

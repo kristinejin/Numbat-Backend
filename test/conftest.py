@@ -75,3 +75,15 @@ def companyFlask():
     companycode = (''.join(random.choice(string.ascii_lowercase)
                    for i in range(5)))
     return(name, abn, street, suburb, postcode, companycode)
+
+
+@pytest.fixture
+def companyFlask2():
+    name = (''.join(random.choice(string.ascii_lowercase) for i in range(10)))
+    abn = 12345678910
+    street = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    suburb = (''.join(random.choice(string.ascii_lowercase) for i in range(5)))
+    postcode = 2000
+    companycode = (''.join(random.choice(string.ascii_lowercase)
+                   for i in range(5)))
+    return(name, abn, street, suburb, postcode, companycode)
