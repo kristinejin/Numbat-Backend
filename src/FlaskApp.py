@@ -1,6 +1,7 @@
 # from tkinter.tix import InputOnly
 # from this import d
 from flask import Flask, request, redirect, url_for, session, send_file
+import flask
 from src.auth import Login, CreateAccount, createCompany, auth_passwordreset_request_base, auth_passwordreset_reset_base
 from src.other import receiveAndStore, companyCodeFromUsername, companyCodeFromName
 from src.invoices import invoiceCreate
@@ -20,7 +21,7 @@ from src.senders import addSender, removeSender, checkSenderAccess
 
 app = Flask(__name__)
 app.secret_key = "hello"
-CORS(app)
+CORS(app, expose_headers=["Content-Disposition", "Content-Type"])
 
 
 def loginRequired(func):
@@ -106,7 +107,7 @@ def Home():
     return dumps({"invoices": retVal})
 
 
-@app.route("/Extract", methods=["POST"])
+@app.route("/Extract", methods=["GET", "POST"])
 @loginRequired
 def Extract():
     """
@@ -120,8 +121,8 @@ def Extract():
     data = {"FileName": FileName, "Password": Password}
     try:
         r = requests.post(url, data)
-        # return render_template("ExtractOutput.html", XML=r.text)
-        return send_file(BytesIO(r.text.encode('utf-8')), mimetype='test/xml')
+        return send_file(BytesIO(
+            r.text.encode('utf-8')), mimetype='text/xml', download_name=f"{FileName}.xml")
     except Exception as e:
         raise e
 
@@ -266,11 +267,6 @@ def rendering():
     Username = session["Username"]
     Password = companyCodeFromUsername(Username)
 
-    # File type can only be pdf/html/json
-    # Make filetype lowercase
-    # FileType = request.form["FileType"]
-    # FileType.lower()
-
     extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
     extractData = {"FileName": FileName, "Password": Password}
 
@@ -282,22 +278,33 @@ def rendering():
     try:
         # get the invoice as a string in the storage db
         fileStr = requests.post(extractURL, data=extractData)
-        # return fileStr.text
+
         # convert string to a binary xml file
         with open("str_to_xml.xml", "w") as f:
             f.write(str(fileStr.text))
+
         # payload for rendering upload request
-        # rendering upload ret type: {"file_ids": [int_file_id]}
         pload = {'xml': open('str_to_xml.xml', 'rb')}
         renderRequest = requests.post(
             renderUrl, files=pload)
         if renderRequest.status_code == 200:
-            # do the render quota thing
             if checkQuota("None", Password, "render") == "Fail":
                 raise Exception(
                     "Invoice cannot be rendered: Account Limit Reached")
-            return send_file(BytesIO(renderRequest.content), mimetype='application/pdf')
+            Response = flask.Response()
+            Response.headers["Content-Type"] = 'application/pdf'
+            Response.headers["Content-Disposition"] = f"attachment; filename='{FileName}.pdf'"
+            print(Response.headers)
+            with open("src/text.pdf", "wb") as f:
+                f.write(renderRequest.content)
+            # old code
+            """
+            # return send_file(BytesIO(renderRequest.content), mimetype='application/pdf')
             # as_attachment=True, download_name=f"{FileName}
+            """
+            return send_file('text.pdf',
+                             mimetype='application/pdf',
+                             download_name=f"{FileName}.pdf")
         else:
             raise Exception(f"Render API Error: {renderRequest.content}")
     except Exception as e:
