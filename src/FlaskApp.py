@@ -1,7 +1,8 @@
 # from tkinter.tix import InputOnly
-from flask import Flask, request, render_template, redirect, url_for, session, send_file
-from src.auth import Login, CreateAccount, auth_passwordreset_request_base, auth_passwordreset_reset_base, createCompany
-from src.other import receiveAndStore, companyCodeFromUsername
+# from this import d
+from flask import Flask, request, redirect, url_for, session, send_file
+from src.auth import Login, CreateAccount, createCompany, auth_passwordreset_request_base, auth_passwordreset_reset_base
+from src.other import receiveAndStore, companyCodeFromUsername, companyCodeFromName
 from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
 from src.select_all import selectAll
@@ -11,10 +12,10 @@ from io import BytesIO
 from json import dumps
 import json
 from flask_cors import CORS
-from src.error import InputError
+from src.error import InputError, AccessError
 import psycopg2
 from src.config import DATABASE_URL
-from src.senders import addSender, removeSender
+from src.senders import addSender, removeSender, checkSenderAccess
 
 
 app = Flask(__name__)
@@ -138,7 +139,7 @@ def store():
     Password = companyCodeFromUsername(Username)
 
     if checkQuota("None", Password, "store") == "Fail":
-        return render_template("Error.html", Error="Stored Invoice Quota is FULL")
+        raise InputError(description="Stored Invoice Quota is FULL")
 
     url = "https://teamfudgeh17a.herokuapp.com/store"
     data = {"FileName": FileName, "XML": Xml, "Password": Password}
@@ -307,7 +308,7 @@ def rendering():
 @loginRequired
 def invoice_create_route():
     """
-    Params
+    Params(NOTE: Create takes in json input)
     * General Info:
         - fileName: name of the file to be stored
         - IssueDate (input format: yyyy-mm-dd)
@@ -323,6 +324,22 @@ def invoice_create_route():
         - InvoiceName (name of product) -> InvoiceName2..n
         - InvoiceQuantity (int) (quantity of a single product) -> InvoiceQuantity2..n
         - InvoicePriceAmount (int) (price/unit of a single product) -> InvoicePriceAmount2..n
+
+    Input Example:
+    {
+        "fileName":"helloWorld",
+        "IssueDate": "2022-03-01",
+        "CustomerRegistration": "UNSW",
+        "CustomerStreet": "700 UNSW Street",
+        "CustomerCity": "Kensington",
+        "CustomerPost": 2030,
+        "TaxableAmount": 500,
+        "PayableAmount": 550,
+        "InvoiceName": "Office Chair",
+        "InvoiceQuantity": 2,
+        "InvoicePriceAmount": 250
+    }
+
     Returns:
     send_file function - BytesIO XML file
     (can be change to a download attatchment pop up screen)
@@ -382,7 +399,6 @@ def userinfo_return():
     return dumps({"userinfo": {"username": account[0], "password": account[1], "numrenders": account[2], "email": account[3]}})
 
 
-
 @app.route("/passwordreset/request", methods=["POST"])
 def auth_passwordreset_request_v1():
     email = request.get_json("email")
@@ -431,6 +447,7 @@ def add_sender_route():
 @loginRequired
 def remove_sender_route():
     '''
+    NOTE: This route is DELETE method, if it doesn't work well, please change to POST or PUT
     Description:
     - Given a sender name, delete the sender from the receiver company's sender list 
 
@@ -448,6 +465,73 @@ def remove_sender_route():
     Username = session["Username"]
     companyCode = companyCodeFromUsername(Username)
     return dumps(removeSender(companyCode, senderName))
+
+
+@app.route("/Send", methods=["POST"])
+@loginRequired
+def internal_sending_route():
+    '''
+    Description:
+    - Given a sender name, delete the sender from the receiver company's sender list 
+
+    Params:
+    - senderName: trading name of the sender to be removed
+
+    Exception:
+    - InputError when:
+        1. No sender associate with given senderName (sender does not exist)
+        2. senderName does not exist on the receiver's sender list (i.e., the sender have not been added/already been deleted)
+
+    Return:{ 'removeSenderStatus': True } on success
+    '''
+    receiverName = request.form["receiverName"]
+    FileName = request.form["FileName"]
+    Username = session["Username"]
+    senderCompanyCode = companyCodeFromUsername(Username)
+    receiverCompanyCode = companyCodeFromName(receiverName)['companyCode']
+
+    # check if sender have access to send to receiver
+    access = checkSenderAccess(receiverCompanyCode, senderCompanyCode)
+    if not access['isAuthorised']:
+        raise AccessError(
+            description=f"Cannot send to {receiverName}: Please request permission from this company")
+
+    # extract from sender companyCode - using storage api
+    extractUrl = "https://teamfudgeh17a.herokuapp.com/extract"
+    data = {"FileName": FileName, "Password": senderCompanyCode}
+    extract = requests.post(extractUrl, data)
+    if extract.status_code != 200:
+        raise InputError(
+            description=f"Cannot send {FileName}: File does not exist")
+
+    # check receiver quota
+    if checkQuota("None", receiverCompanyCode, "store") == "Fail":
+        raise InputError(
+            description=f"Cannot send file: Contact {receiverName}, receiver storage is full")
+
+    # check if file name exist in the receiver storage:
+    # TODO: not sure if this works, check please!!!!
+    receiverData = {"FileName": FileName, "Password": receiverCompanyCode}
+
+    try:
+        receiverExtract = requests.post(extractUrl, receiverData)
+        if receiverExtract.status_code == 200:
+            FileName += '(1)'
+    except Exception:
+        pass
+
+    # store to receiver companyCode - using storage api
+    storeUrl = "https://teamfudgeh17a.herokuapp.com/store"
+    data = {"FileName": FileName, "XML": extract.text,
+            "Password": receiverCompanyCode}
+    storeResp = requests.post(storeUrl, data=data)
+    if storeResp.status_code != 200:
+        raise Exception("Something went wrong: Invoice Cannot be Stored")
+
+    # end - return status
+    return {
+        'sendStatus': True
+    }
 
 
 if __name__ == '__main__':
