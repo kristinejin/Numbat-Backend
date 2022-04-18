@@ -17,7 +17,7 @@ def checkQuota(username: str, companyCode: str, funcType: str):
         when connect to db failed
     """
 
-    USAGE_LIMIT = 5
+    USAGE_LIMIT = 20
 
     try:
         # Connect to DB
