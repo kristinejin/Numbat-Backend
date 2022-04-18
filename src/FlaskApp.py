@@ -1,7 +1,6 @@
 # from tkinter.tix import InputOnly
 from flask import Flask, request, render_template, redirect, url_for, session, send_file
-# , auth_passwordreset_request_base, auth_passwordreset_reset_base
-from src.auth import Login, CreateAccount, createCompany
+from src.auth import Login, CreateAccount, auth_passwordreset_request_base, auth_passwordreset_reset_base, createCompany
 from src.other import receiveAndStore, companyCodeFromUsername
 from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
@@ -383,26 +382,26 @@ def userinfo_return():
     return dumps({"userinfo": {"username": account[0], "password": account[1], "numrenders": account[2], "email": account[3]}})
 
 
-# @APP.route("passwordreset/request", methods=["POST"])
-# def auth_passwordreset_request_v1():
 
-#     email = request.get_json("email")
+@app.route("/passwordreset/request", methods=["POST"])
+def auth_passwordreset_request_v1():
+    email = request.get_json("email")
 
-#     results = auth_passwordreset_request_base(email)
+    results = auth_passwordreset_request_base(email)
 
-#     return dumps({"reset_code_status": results})
+    return dumps({"Request_Status": results})
 
 
-# @app.route("passwordreset/reset", methods=["POST"])
-# def auth_passwordreset_reset_v1():
+@app.route("/passwordreset/reset", methods=["POST"])
+def auth_passwordreset_reset_v1():
 
-#     inputs = request.get_json()
-#     reset_code = inputs["reset_code"]
-#     new_password = inputs["new_password"]
+    inputs = request.get_json()
+    reset_code = inputs["reset_code"]
+    new_password = inputs["new_password"]
 
-#     results = auth_passwordreset_reset_base(reset_code, new_password)
+    results = auth_passwordreset_reset_base(reset_code, new_password)
+    return dumps({"Reset_Status": results})
 
-#     return dumps({"reset_status": results})
 
 @app.route("/senders/add", methods=["POST"])
 @loginRequired

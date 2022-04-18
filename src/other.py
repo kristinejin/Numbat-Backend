@@ -2,7 +2,6 @@ from src.config import DATABASE_URL
 from src.error import InputError
 import psycopg2
 
-
 def receiveAndStore(email: str):
 
     try:
@@ -24,7 +23,6 @@ def receiveAndStore(email: str):
     except Exception as e:
         print(e)
 
-
 def companyCodeFromUsername(username: str):
 
     try:
@@ -45,7 +43,6 @@ def companyCodeFromUsername(username: str):
 
     except Exception as e:
         print(e)
-
 
 def checkUnusedUsername(username: str):
 
@@ -71,24 +68,43 @@ def checkUnusedUsername(username: str):
     except Exception as e:
         print(e)
 
-
-def checkUniqueEmail(email: str):
+def checkUniqueEmail(email):
 
     try:
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cur = conn.cursor()
 
-        sql = "SELECT username FROM userinfo WHERE email = %s"
+        sql = "SELECT count(username) FROM userinfo WHERE email = %s"
         val = [email]
 
         cur.execute(sql, val)
 
-        email = cur.fetchone()
-
+        count = cur.fetchall()
         cur.close()
         conn.close()
+        if count[0][0] == 0:
+            return "Continue"
+        else:
+            return "Failed Check"
 
-        if email is None:
+    except Exception as e:
+        print(e)
+
+def checkEmailExists(email):
+
+    try:
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cur = conn.cursor()
+
+        sql = "SELECT count(username) FROM userinfo WHERE email = %s"
+        val = [email]
+
+        cur.execute(sql, val)
+
+        count = cur.fetchall()
+        cur.close()
+        conn.close()
+        if count[0][0] == 1:
             return "Continue"
         else:
             return "Failed Check"
@@ -132,7 +148,6 @@ def checkUniqueCompanyCode(code: str):
         cur.execute(sql, val)
 
         code = cur.fetchone()
-        print(code)
         cur.close()
         conn.close()
 
