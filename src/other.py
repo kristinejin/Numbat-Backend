@@ -1,4 +1,5 @@
 from src.config import DATABASE_URL
+from src.error import InputError
 import psycopg2
 
 
@@ -226,6 +227,32 @@ def customerCompanyInfo(name):
         raise e
 
 
+def companyCodeFromName(name):
+    companyCode = str()
+    try:
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cur = conn.cursor()
+
+        sql = "SELECT companycode FROM companyinfo WHERE name = %s"
+        val = [name]
+
+        cur.execute(sql, val)
+
+        data = cur.fetchone()
+        cur.close()
+        conn.close()
+        if data == None:
+            raise InputError(
+                description=f"Company Name Error: There is no company with name {name}")
+
+        companyCode = data[0]
+        return {
+            'companyCode': companyCode
+        }
+    except Exception as e:
+        raise e
+
+
 BASE_CREATE_DATA = {
     "UBLID": 2.1,
     "CustomizationID": "urn:cen.eu:en16931:2017#conformant#urn:fdc:peppol.eu:2017:poacc:billing:international:aunz:3.0",
@@ -272,6 +299,7 @@ BASE_CREATE_DATA = {
     "InvoiceBaseQuantity": 1
 }
 
-# if __name__ == '__main__':
-#     print(supplierCompanyInfo("oflgxqqbfv"))
-#     print(customerCompanyInfo("unsw"))
+if __name__ == '__main__':
+    # print(supplierCompanyInfo("oflgxqqbfv"))
+    # print(customerCompanyInfo("unsw"))
+    print(companyCodeFromName('math'))

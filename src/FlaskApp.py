@@ -1,6 +1,7 @@
 # from tkinter.tix import InputOnly
 from flask import Flask, request, render_template, redirect, url_for, session, send_file
-from src.auth import Login, CreateAccount, createCompany #, auth_passwordreset_request_base, auth_passwordreset_reset_base
+# , auth_passwordreset_request_base, auth_passwordreset_reset_base
+from src.auth import Login, CreateAccount, createCompany
 from src.other import receiveAndStore, companyCodeFromUsername
 from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
@@ -14,6 +15,7 @@ from flask_cors import CORS
 from src.error import InputError
 import psycopg2
 from src.config import DATABASE_URL
+from src.senders import addSender, removeSender
 
 
 app = Flask(__name__)
@@ -102,7 +104,6 @@ def Home():
     companyCode = companyCodeFromUsername(Username)
     retVal = selectAll(companyCode)
     return dumps({"invoices": retVal})
-
 
 
 @app.route("/Extract", methods=["POST"])
@@ -402,6 +403,52 @@ def userinfo_return():
 #     results = auth_passwordreset_reset_base(reset_code, new_password)
 
 #     return dumps({"reset_status": results})
+
+@app.route("/senders/add", methods=["POST"])
+@loginRequired
+def add_sender_route():
+    '''
+    Description: 
+    - Given a sender name, add the sender to the receiver company's sender list 
+
+    Params:
+    - senderName: trading name of the sender to be added
+
+    Exception:
+    - InputError when:
+        1. No sender associate with given senderName (sender does not exist)
+        2. Sender name have already been added
+
+    Return:{ 'addSenderStatus': True } on success
+    '''
+
+    senderName = request.form['senderName']
+    Username = session["Username"]
+    companyCode = companyCodeFromUsername(Username)
+    return dumps(addSender(companyCode, senderName))
+
+
+@app.route("/senders/remove", methods=["DELETE"])
+@loginRequired
+def remove_sender_route():
+    '''
+    Description:
+    - Given a sender name, delete the sender from the receiver company's sender list 
+
+    Params:
+    - senderName: trading name of the sender to be removed
+
+    Exception:
+    - InputError when:
+        1. No sender associate with given senderName (sender does not exist)
+        2. senderName does not exist on the receiver's sender list (i.e., the sender have not been added/already been deleted)
+
+    Return:{ 'removeSenderStatus': True } on success
+    '''
+    senderName = request.form['senderName']
+    Username = session["Username"]
+    companyCode = companyCodeFromUsername(Username)
+    return dumps(removeSender(companyCode, senderName))
 
 
 if __name__ == '__main__':

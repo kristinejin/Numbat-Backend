@@ -4,8 +4,9 @@ CREATE TABLE UserInfo(
     UNIQUE (Username)
 );
 CREATE TABLE senders(
-    owner VARCHAR(20) NOT NULL,
-    sender VARCHAR(20) NOT NULL
+    owner text NOT NULL,
+    sender text NOT NULL
+);
 CREATE TABLE companyInfo(
     name VARCHAR(50) NOT NULL,
     abn VARCHAR(11) NOT NULL,
