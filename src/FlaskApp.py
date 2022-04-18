@@ -1,12 +1,20 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+# from tkinter.tix import InputOnly
+from flask import Flask, request, render_template, redirect, url_for, session, send_file
 from src.auth import Login, CreateAccount, auth_passwordreset_request_base, auth_passwordreset_reset_base, createCompany
 from src.other import receiveAndStore, companyCodeFromUsername
+from src.invoices import invoiceCreate
 from src.check_num_render_or_store import checkQuota
+from src.select_all import selectAll
 import requests
 import functools
-import json
+from io import BytesIO
 from json import dumps
+import json
 from flask_cors import CORS
+from src.error import InputError
+import psycopg2
+from src.config import DATABASE_URL
+from src.senders import addSender, removeSender
 
 
 app = Flask(__name__)
@@ -31,39 +39,42 @@ def Start():
 
 
 # Store API
-@app.route("/UserLogin", methods=["POST", "GET"])
+@app.route("/UserLogin", methods=["POST"])
 def UserLogin():
-    if request.method == "POST":
-        Username = request.form["UserName"]
-        Password = request.form["Password"]
-        try:
-            Login(Username, Password)
-            session["Username"] = Username
-            return redirect(url_for("Home"))
-        except Exception as e:
-            return render_template("Error.html", Error=e)
-    else:
-        return render_template("LoginHome.html")
+    Username = request.form["UserName"]
+    Password = request.form["Password"]
+    loginStatus = Login(Username, Password)
+    if loginStatus:
+        session["Username"] = Username
+        return dumps(
+            {
+                'loginStatus': loginStatus
+            }
+        )
 
 
-@app.route("/Register", methods=["POST", "GET"])
+@app.route("/Register", methods=["POST"])
 def Register():
-    if request.method == "POST":
-        Username = request.form["UserName"]
-        Password = request.form["Password"]
-        companyCode = request.form["CompanyCode"]
-        email = request.form["Email"]
-        try:
-            CreateAccount(Username, Password, companyCode, email)
-            session["Username"] = Username
-            return redirect(url_for("Home"))
-        except Exception as e:
-            return render_template("/errors/registerError.html", Error=e)
-    else:
-        return render_template("RegisterHome.html")
+    """
+    params:
+    - UserName
+    - Password
+    - CompanyCode
+    - Email
+    """
+    Username = request.form["UserName"]
+    Password = request.form["Password"]
+    companyCode = request.form["CompanyCode"]
+    email = request.form["Email"]
+    createStatus = CreateAccount(Username, Password, companyCode, email)
+    if createStatus:
+        session["Username"] = Username
+        return dumps({
+            'createStatus': createStatus
+        })
 
 
-@app.route("/create/company", methods=["POST"])
+@app.route("/register/company", methods=["POST"])
 def createCompanyRoute():
     """
     required field includes:
@@ -84,201 +95,301 @@ def createCompanyRoute():
         name, abn, street, suburb, postcode, companyCode))
 
 
-@app.route("/Home", methods=["GET", "POST"])
-@loginRequired
+@app.route("/Home", methods=["POST"])
+# @loginRequired
 def Home():
-    if request.method == "POST":
-        return "hello"
-    else:
-        return render_template("HomePage.html", Name=session["Username"])
+    # Username = session["Username"]
+    Username = request.form["UserName"]
+    companyCode = companyCodeFromUsername(Username)
+    retVal = selectAll(companyCode)
+    return dumps({"invoices": retVal})
 
 
-@app.route("/Extract", methods=["GET", "POST"])
+@app.route("/Extract", methods=["POST"])
 @loginRequired
 def Extract():
-    if request.method == "POST":
-        Username = session["Username"]
-        Password = companyCodeFromUsername(Username)
-        FileName = request.form["FileName"]
-        url = "https://teamfudgeh17a.herokuapp.com/extract"
-        data = {"FileName": FileName, "Password": Password}
-        try:
-            r = requests.post(url, data)
-            return render_template("ExtractOutput.html", XML=r.text)
-        except Exception as e:
-            return render_template("/errors/extractError.html", Error=e)
-    else:
-        return render_template("extractMain.html")
+    """
+    params:
+    FileName
+    """
+    Username = session["Username"]
+    Password = companyCodeFromUsername(Username)
+    FileName = request.form["FileName"]
+    url = "https://teamfudgeh17a.herokuapp.com/extract"
+    data = {"FileName": FileName, "Password": Password}
+    try:
+        r = requests.post(url, data)
+        # return render_template("ExtractOutput.html", XML=r.text)
+        return send_file(BytesIO(r.text.encode('utf-8')), mimetype='test/xml')
+    except Exception as e:
+        raise e
 
 
-@app.route("/Store", methods=["GET", "POST"])
+@app.route("/Store", methods=["POST"])
 @loginRequired
 def store():
-    if request.method == "POST":
 
-        FileName = request.form["FileName"]
-        Xml = request.form["XML"]
+    FileName = request.form["FileName"]
+    binaryFile = request.files['xml']
+    Xml = binaryFile.read().decode('UTF-8')
 
-        # Password = request.form["Password"]
-        Username = session["Username"]
-        Password = companyCodeFromUsername(Username)
+    # Password = request.form["Password"]
+    Username = session["Username"]
+    Password = companyCodeFromUsername(Username)
 
-        if checkQuota("None", Password, "store") == "Fail":
-            return render_template("Error.html", Error="Stored Invoice Quota is FULL")
+    if checkQuota("None", Password, "store") == "Fail":
+        return render_template("Error.html", Error="Stored Invoice Quota is FULL")
 
-        url = "https://teamfudgeh17a.herokuapp.com/store"
-        data = {"FileName": FileName, "XML": Xml, "Password": Password}
-        try:
-            r = requests.post(url, data)
-            if r.status_code == 200:
-                return render_template("StoreOutput.html")
-            else:
-                return render_template("/errors/storeError.html", Error="Not able to save File")
-        except Exception as e:
-            return render_template("/errors/storeError.html", Error=e)
-    else:
-        return render_template("storeMain.html")
+    url = "https://teamfudgeh17a.herokuapp.com/store"
+    data = {"FileName": FileName, "XML": Xml, "Password": Password}
+    try:
+        r = requests.post(url, data)
+        if r.status_code == 200:
+            return dumps({
+                "storeStatus": True
+            })
+        else:
+            raise InputError(description="File cannot be stored")
+    except Exception as e:
+        raise e
 
 
-@app.route("/Remove", methods=["GET", "POST"])
+@app.route("/Remove", methods=["POST"])
 @loginRequired
-def delete():
-    if request.method == "POST":
-        FileName = request.form["FileName"]
-        # Password = request.form["Password"]
-        Username = session["Username"]
-        Password = companyCodeFromUsername(Username)
+def remove():
 
-        url = "https://teamfudgeh17a.herokuapp.com/remove"
-        data = {"FileName": FileName, "Password": Password}
-        try:
-            r = requests.post(url, data)
-            if r.status_code == 200:
-                print(r.status_code)
-                return render_template("RemoveOutput.html")
-        except Exception as e:
-            return render_template("/errors/removeError.html", Error=e)
+    FileName = request.form["FileName"]
+    """
+    params:
+    FileName
+    """
+    Username = session["Username"]
+    Password = companyCodeFromUsername(Username)
+
+    url = "https://teamfudgeh17a.herokuapp.com/remove"
+    data = {"FileName": FileName, "Password": Password}
+    r = requests.post(url, data)
+    if r.status_code == 200:
+        return {
+            'removeStatus': True
+        }
     else:
-        return render_template("RemoveMain.html")
+        raise InputError(
+            description="File cannot be removed: Incorrect file nme")
 
 
-@app.route("/Search", methods=["GET", "POST"])
+@app.route("/Search", methods=["POST"])
 @loginRequired
 def search():
-    if request.method == "POST":
+    """
+    params:
+    either/both: sender_name / issue_date
+    return: {
+        'file_names':[name1, name2, ... namen]
+    }
+    """
+    issueDate = str()
+    senderName = str()
+    try:
         senderName = request.form["sender_name"]
         issueDate = request.form["issue_date"]
-        # Password = request.form["Password"]
-        Username = session["Username"]
-        Password = companyCodeFromUsername(Username)
-
-        url = "https://teamfudgeh17a.herokuapp.com/search"
-        data = {
-            "issue_date": issueDate,
-            "sender_name": senderName,
-            "Password": Password,
-        }
+    except Exception:
         try:
-            r = requests.post(url, data)
-            if r.status_code == 200:
-                return render_template("SearchOutput.html", Files=r.text)
-            else:
-                return render_template("/errors/searchError.html", Error="There's no file matching the keywords.")
-        except Exception as e:
-            return render_template("/errors/searchError.html", Error=e)
+            issueDate = request.form["issue_date"]
+        except Exception:
+            pass
+    if issueDate == '' and senderName == '':
+        raise InputError(description="Please input at least one keyword")
+    Username = session["Username"]
+    Password = companyCodeFromUsername(Username)
+    url = "https://teamfudgeh17a.herokuapp.com/search"
+    data = {
+        "issue_date": issueDate,
+        "sender_name": senderName,
+        "Password": Password
+    }
+    r = requests.post(url, data)
+    if r.status_code == 200:
+        return dumps(
+            json.loads(r.text))
     else:
-        return render_template("SearchMain.html")
+        return dumps({
+            'searchOutput': "No file contains input keywords"
+        })
 
 
-@app.route("/Logout", methods=["GET", "POST"])
+@app.route("/Logout", methods=["POST"])
 @loginRequired
 def logout():
-    if request.method == "POST":
-        if request.form["Logout"] == "Logout":
-            session.clear()
-            return redirect(url_for("UserLogin"))
-    else:
-        return render_template("Logout.html")
+    if request.form["Logout"] == "Logout":
+        session.clear()
+        return dumps({
+            'logoutStatus': True
+        })
 
 
 @app.route("/receive", methods=["POST"])
 def receive_data():
 
-    if request.method == "POST":
-        xml = request.json['xml_attachments']
-        email = request.json['sender_address']
+    xml = request.json['xml_attachments']
+    email = request.json['sender_address']
 
-        companyCode = receiveAndStore(email)
+    companyCode = receiveAndStore(email)
 
-        url = "https://teamfudgeh17a.herokuapp.com/store"
-        data = {
-            "FileName": request.json['received_at_timestamp'], "XML": xml, "Password": companyCode}
-        try:
-            r = requests.post(url, data)
-            if r.status_code == 200:
-                return '200'
-            else:
-                return "Failed to receive"
-        except Exception as e:
-            return render_template("Error.html", Error=e)
+    url = "https://teamfudgeh17a.herokuapp.com/store"
+    data = {
+        "FileName": request.json['received_at_timestamp'], "XML": xml, "Password": companyCode}
+    r = requests.post(url, data)
+    if r.status_code == 200:
+        return dumps({
+            'receiveStatus': True
+        })
     else:
-        return render_template("Error.html")
+        return dumps({
+            'receiveStatus': "Invoice cannot be stored"
+        })
 
 
-@app.route("/Render", methods=["GET", "POST"])
+@app.route("/Render", methods=["POST"])
 @loginRequired
 def rendering():
-    if request.method == 'POST':
-        FileName = request.form["FileName"]
-        # Password = request.form["Password"]
-        Username = session["Username"]
-        Password = companyCodeFromUsername(Username)
+    """
+    Params:
+    - Filenmae
 
-        # File type can only be pdf/html/json
-        FileType = request.form["FileType"]
+    Returns:
+    send_file function - BytesIO PDF file
+    (can be change to a download attatchment pop up screen)
+    """
+    FileName = request.form["FileName"]
+    Username = session["Username"]
+    Password = companyCodeFromUsername(Username)
 
-        extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
-        extractData = {"FileName": FileName, "Password": Password}
+    # File type can only be pdf/html/json
+    # Make filetype lowercase
+    # FileType = request.form["FileType"]
+    # FileType.lower()
 
-        # API: https://app.swaggerhub.com/apis/r-kaisar/e-invoice-rendering/1.0.0#/rendering
-        renderUploadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/upload"
-        renderDownloadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/download"
+    extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
+    extractData = {"FileName": FileName, "Password": Password}
 
-        try:
-            # get the invoice as a string in the storage db
-            fileStr = requests.post(extractURL, extractData)
-            # print(fileStr.text)
-            # convert string to a binary xml file
-            with open("str_to_xml.xml", "w") as f:
-                f.write(str(fileStr.text))
-            # payload for rendering upload request
-            # rendering upload ret type: {"file_ids": [int_file_id]}
-            pload = {'file': open('str_to_xml.xml', 'r')}
-            renderUploadRequest = requests.post(
-                renderUploadURL, files=pload)
-            renderUpload = json.loads(renderUploadRequest.text)
-            # call rendering download endpoint
-            # rendered file in rendering_download
-            rendering_download = requests.get(
-                renderDownloadURL, params={"file_id": renderUpload["file_ids"][0], "file_type": FileType})
-            assert rendering_download.status_code == 200
+    # API: https://app.swaggerhub.com/apis/r-kaisar/e-invoice-rendering/1.0.0#/rendering
+    # renderUrl = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/upload"
+    # renderDownloadURL = "https://e-invoice-rendering-brownie.herokuapp.com/invoice/rendering/download"
+    renderUrl = "https://www.invoicerendering.com/einvoices?renderType=pdf&lang=en"
+
+    try:
+        # get the invoice as a string in the storage db
+        fileStr = requests.post(extractURL, data=extractData)
+        # return fileStr.text
+        # convert string to a binary xml file
+        with open("str_to_xml.xml", "w") as f:
+            f.write(str(fileStr.text))
+        # payload for rendering upload request
+        # rendering upload ret type: {"file_ids": [int_file_id]}
+        pload = {'xml': open('str_to_xml.xml', 'rb')}
+        renderRequest = requests.post(
+            renderUrl, files=pload)
+        if renderRequest.status_code == 200:
+            # do the render quota thing
             if checkQuota("None", Password, "render") == "Fail":
-                return render_template("/errors/renderError.html", Error="Rendered Invoice Quota is FULL")
+                raise Exception(
+                    "Invoice cannot be rendered: Account Limit Reached")
+            return send_file(BytesIO(renderRequest.content), mimetype='application/pdf')
+            # as_attachment=True, download_name=f"{FileName}
+        else:
+            raise Exception(f"Render API Error: {renderRequest.content}")
+    except Exception as e:
+        raise e
 
-            return render_template("renderOutput.html", file_path=rendering_download.url)
-        except Exception as e:
-            return render_template("/errors/renderError.html", Error=e)
+
+@app.route("/Create", methods=["POST"])
+@loginRequired
+def invoice_create_route():
+    """
+    Params
+    * General Info:
+        - fileName: name of the file to be stored
+        - IssueDate (input format: yyyy-mm-dd)
+    * Customer Info: 
+        - CustomerRegistration (trading name of the customer / buyer)
+        - CustomerStreet
+        - CustomerCity
+        - CustomerPost
+    * For invoice total: 
+        - TaxableAmount (int) (total price of all purchases without the gst)
+        - PayableAmount (int) (total price includes gst)
+    * For a single product on invoice: 
+        - InvoiceName (name of product) -> InvoiceName2..n
+        - InvoiceQuantity (int) (quantity of a single product) -> InvoiceQuantity2..n
+        - InvoicePriceAmount (int) (price/unit of a single product) -> InvoicePriceAmount2..n
+    Returns:
+    send_file function - BytesIO XML file
+    (can be change to a download attatchment pop up screen)
+    """
+    # https://app.swaggerhub.com/apis/SENG2021-DONUT/e-invoice_creation/1.0.0#/XML%20Conversion/jsonconvert
+    pload = request.get_json()
+    fileName = pload['fileName']
+    Username = session["Username"]
+    supplierCompanyCode = companyCodeFromUsername(Username)
+    invoiceDict = invoiceCreate(pload, supplierCompanyCode)
+
+    createUrl = "https://seng-donut-deployment.herokuapp.com/json/convert"
+    r = requests.post(
+        createUrl, json=invoiceDict)
+
+    if r.status_code == 200:
+        if checkQuota("None", supplierCompanyCode, "store") == "Fail":
+            raise InputError("Invoice cannot be stored: Account Limit Reached")
+
+        storeUrl = "https://teamfudgeh17a.herokuapp.com/store"
+        data = {"FileName": fileName, "XML": r.content.decode('ascii'),
+                "Password": supplierCompanyCode}
+        storeResp = requests.post(storeUrl, data=data)
+        if storeResp.status_code != 200:
+            raise InputError("Invoice cannot be stored")
+        return send_file(BytesIO(r.content), mimetype='text/xml', as_attachment=True, download_name=f"{fileName}.xml")
     else:
-        return render_template("renderMain.html")
+        raise InputError(
+            description="Invoice cannot be created: Duplicated Filename or Invalid XML format")
+
+
+@app.route("/Test", methods=["POST"])
+# @loginRequired
+def userinfo_return():
+    Username = request.form["UserName"]
+    # Username = session["Username"]
+
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+    cur = conn.cursor()
+
+    # Insert data into db
+    sql = "Select username, password, numrenders, email from userinfo where username = %s"
+    val = [Username]
+    cur.execute(sql, val)
+
+    retVal = cur.fetchall()
+
+    account = []
+    print(retVal)
+    for tup in retVal[0]:
+        account.append(tup)
+
+    cur.close()
+    conn.close()
+
+    return dumps({"userinfo": {"username": account[0], "password": account[1], "numrenders": account[2], "email": account[3]}})
+
+
 
 @app.route("/passwordreset/request", methods=["POST"])
 def auth_passwordreset_request_v1():
-
     email = request.get_json("email")
 
     results = auth_passwordreset_request_base(email)
 
-    return results
+    return dumps({"Request_Status": results})
 
 
 @app.route("/passwordreset/reset", methods=["POST"])
@@ -289,7 +400,54 @@ def auth_passwordreset_reset_v1():
     new_password = inputs["new_password"]
 
     results = auth_passwordreset_reset_base(reset_code, new_password)
-    return results
+    return dumps({"Reset_Status": results})
+
+
+@app.route("/senders/add", methods=["POST"])
+@loginRequired
+def add_sender_route():
+    '''
+    Description: 
+    - Given a sender name, add the sender to the receiver company's sender list 
+
+    Params:
+    - senderName: trading name of the sender to be added
+
+    Exception:
+    - InputError when:
+        1. No sender associate with given senderName (sender does not exist)
+        2. Sender name have already been added
+
+    Return:{ 'addSenderStatus': True } on success
+    '''
+
+    senderName = request.form['senderName']
+    Username = session["Username"]
+    companyCode = companyCodeFromUsername(Username)
+    return dumps(addSender(companyCode, senderName))
+
+
+@app.route("/senders/remove", methods=["DELETE"])
+@loginRequired
+def remove_sender_route():
+    '''
+    Description:
+    - Given a sender name, delete the sender from the receiver company's sender list 
+
+    Params:
+    - senderName: trading name of the sender to be removed
+
+    Exception:
+    - InputError when:
+        1. No sender associate with given senderName (sender does not exist)
+        2. senderName does not exist on the receiver's sender list (i.e., the sender have not been added/already been deleted)
+
+    Return:{ 'removeSenderStatus': True } on success
+    '''
+    senderName = request.form['senderName']
+    Username = session["Username"]
+    companyCode = companyCodeFromUsername(Username)
+    return dumps(removeSender(companyCode, senderName))
 
 
 if __name__ == '__main__':

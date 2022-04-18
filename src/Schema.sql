@@ -3,6 +3,10 @@ CREATE TABLE UserInfo(
     Password VARCHAR(12) NOT NULL,
     UNIQUE (Username)
 );
+CREATE TABLE senders(
+    owner text NOT NULL,
+    sender text NOT NULL
+);
 CREATE TABLE companyInfo(
     name VARCHAR(50) NOT NULL,
     abn VARCHAR(11) NOT NULL,

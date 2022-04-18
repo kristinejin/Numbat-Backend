@@ -73,4 +73,3 @@ def store_helper():
 #     # print(resp.status_code)
 #     # print(resp.text)
 #     assert 10 == 5
-#     assert 10 == 5
