@@ -1,1 +1,94 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?> <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cec="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"> <cbc:UBLVersionID>2.1</cbc:UBLVersionID> <cbc:CustomizationID>urn:cen.eu:en16931:2017#conformant#urn:fdc:peppol.eu:2017:poacc:billing:international:aunz:3.0</cbc:CustomizationID> <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID> <cbc:ID>EBWASP1002</cbc:ID> <cbc:IssueDate>2022-02-07</cbc:IssueDate> <cbc:InvoiceTypeCode listAgencyID="6" listID="UNCL1001">380</cbc:InvoiceTypeCode> <cbc:DocumentCurrencyCode listAgencyID="6" listID="ISO4217">AUD</cbc:DocumentCurrencyCode> <cbc:BuyerReference>EBWASP1002</cbc:BuyerReference> <cac:AdditionalDocumentReference> <cbc:ID>ebwasp1002</cbc:ID> </cac:AdditionalDocumentReference> <cac:AccountingSupplierParty> <cac:Party> <cac:PartyIdentification> <cbc:ID schemeAgencyID="ZZZ" schemeID="0151">80647710156</cbc:ID> </cac:PartyIdentification> <cac:PartyName> <cbc:Name>Ebusiness Software Services Pty Ltd</cbc:Name> </cac:PartyName> <cac:PostalAddress> <cbc:StreetName>100 Business St</cbc:StreetName> <cbc:CityName>Dulwich Hill</cbc:CityName> <cbc:PostalZone>2203</cbc:PostalZone> <cac:Country> <cbc:IdentificationCode listAgencyID="6" listID="ISO3166-1:Alpha2">AU</cbc:IdentificationCode> </cac:Country> </cac:PostalAddress> <cac:PartyLegalEntity> <cbc:RegistrationName>Ebusiness Software Services Pty Ltd</cbc:RegistrationName> <cbc:CompanyID schemeAgencyID="ZZZ" schemeID="0151">80647710156</cbc:CompanyID> </cac:PartyLegalEntity> </cac:Party> </cac:AccountingSupplierParty> <cac:AccountingCustomerParty> <cac:Party> <cac:PartyName> <cbc:Name>Awolako Enterprises Pty Ltd</cbc:Name> </cac:PartyName> <cac:PostalAddress> <cbc:StreetName>Suite 123 Level 45</cbc:StreetName> <cbc:AdditionalStreetName>999 The Crescent</cbc:AdditionalStreetName> <cbc:CityName>Homebush West</cbc:CityName> <cbc:PostalZone>2140</cbc:PostalZone> <cac:Country> <cbc:IdentificationCode listAgencyID="6" listID="ISO3166-1:Alpha2">AU</cbc:IdentificationCode> </cac:Country> </cac:PostalAddress> <cac:PartyLegalEntity> <cbc:RegistrationName>Awolako Enterprises Pty Ltd</cbc:RegistrationName> </cac:PartyLegalEntity> </cac:Party> </cac:AccountingCustomerParty> <cac:PaymentMeans> <cbc:PaymentMeansCode listAgencyID="6" listID="UNCL4461">1</cbc:PaymentMeansCode> <cbc:PaymentID>EBWASP1002</cbc:PaymentID> </cac:PaymentMeans> <cac:PaymentTerms> <cbc:Note>As agreed</cbc:Note> </cac:PaymentTerms> <cac:TaxTotal> <cbc:TaxAmount currencyID="AUD">10.00</cbc:TaxAmount> <cac:TaxSubtotal> <cbc:TaxableAmount currencyID="AUD">100.00</cbc:TaxableAmount> <cbc:TaxAmount currencyID="AUD">10.00</cbc:TaxAmount> <cac:TaxCategory> <cbc:ID schemeAgencyID="6" schemeID="UNCL5305">S</cbc:ID> <cbc:Percent>10.0</cbc:Percent> <cac:TaxScheme> <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">GST</cbc:ID> </cac:TaxScheme> </cac:TaxCategory> </cac:TaxSubtotal> </cac:TaxTotal> <cac:LegalMonetaryTotal> <cbc:LineExtensionAmount currencyID="AUD">100.00</cbc:LineExtensionAmount> <cbc:TaxExclusiveAmount currencyID="AUD">100.00</cbc:TaxExclusiveAmount> <cbc:TaxInclusiveAmount currencyID="AUD">110.00</cbc:TaxInclusiveAmount> <cbc:PayableRoundingAmount currencyID="AUD">0.00</cbc:PayableRoundingAmount> <cbc:PayableAmount currencyID="AUD">110.00</cbc:PayableAmount> </cac:LegalMonetaryTotal> <cac:InvoiceLine> <cbc:ID>1</cbc:ID> <cbc:InvoicedQuantity unitCode="C62" unitCodeListID="UNECERec20">500.0</cbc:InvoicedQuantity> <cbc:LineExtensionAmount currencyID="AUD">100.00</cbc:LineExtensionAmount> <cac:Item> <cbc:Name>pencils</cbc:Name> <cac:ClassifiedTaxCategory> <cbc:ID schemeAgencyID="6" schemeID="UNCL5305">S</cbc:ID> <cbc:Percent>10.0</cbc:Percent> <cac:TaxScheme> <cbc:ID schemeAgencyID="6" schemeID="UN/ECE 5153">GST</cbc:ID> </cac:TaxScheme> </cac:ClassifiedTaxCategory> </cac:Item> <cac:Price> <cbc:PriceAmount currencyID="AUD">0.20</cbc:PriceAmount> <cbc:BaseQuantity unitCode="C62" unitCodeListID="UNECERec20">1.0</cbc:BaseQuantity> </cac:Price> </cac:InvoiceLine> </Invoice>
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cec="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>english</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:PostalAddress>
+        <cac:Country>
+          <cbc:IdentificationCode>AU</cbc:IdentificationCode>
+        </cac:Country>
+        <cbc:CityName>English Hills</cbc:CityName>
+        <cbc:PostalZone>2000</cbc:PostalZone>
+        <cbc:StreetName>25 English Street</cbc:StreetName>
+      </cac:PostalAddress>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="0151">12345678910</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>math</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:PostalAddress>
+        <cac:Country>
+          <cbc:IdentificationCode>AU</cbc:IdentificationCode>
+        </cac:Country>
+        <cbc:CityName>math</cbc:CityName>
+        <cbc:PostalZone>1234</cbc:PostalZone>
+        <cbc:StreetName>math</cbc:StreetName>
+      </cac:PostalAddress>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AdditionalDocumentReference>
+    <cbc:ID>ql1j5noi8s</cbc:ID>
+  </cac:AdditionalDocumentReference>
+  <cac:InvoiceLine>
+    <cac:Item>
+      <cac:ClassifiedTaxCategory>
+        <cac:TaxScheme>
+          <cbc:ID>GST</cbc:ID>
+        </cac:TaxScheme>
+        <cbc:ID>5</cbc:ID>
+        <cbc:Percent>10</cbc:Percent>
+      </cac:ClassifiedTaxCategory>
+      <cbc:Name>Tissues</cbc:Name>
+    </cac:Item>
+    <cac:Price>
+      <cbc:BaseQuantity>1</cbc:BaseQuantity>
+      <cbc:PriceAmount currencyID="AUD">0.2</cbc:PriceAmount>
+    </cac:Price>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity>500</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="AUD">0</cbc:LineExtensionAmount>
+  </cac:InvoiceLine>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="AUD">100</cbc:LineExtensionAmount>
+    <cbc:PayableAmount currencyID="AUD">110</cbc:PayableAmount>
+    <cbc:PayableRoundingAmount currencyID="AUD">0</cbc:PayableRoundingAmount>
+    <cbc:TaxExclusiveAmount currencyID="AUD">100</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="AUD">110</cbc:TaxInclusiveAmount>
+  </cac:LegalMonetaryTotal>
+  <cac:PaymentMeans>
+    <cbc:PaymentID>QL1J5NOI8S</cbc:PaymentID>
+    <cbc:PaymentMeansCode>1</cbc:PaymentMeansCode>
+  </cac:PaymentMeans>
+  <cac:PaymentTerms>
+    <cbc:Note>As agreed</cbc:Note>
+  </cac:PaymentTerms>
+  <cac:TaxTotal>
+    <cac:TaxSubtotal>
+      <cac:TaxCategory>
+        <cac:TaxScheme>
+          <cbc:ID>GST</cbc:ID>
+        </cac:TaxScheme>
+        <cbc:ID>GST</cbc:ID>
+        <cbc:Percent>10</cbc:Percent>
+      </cac:TaxCategory>
+      <cbc:TaxAmount currencyID="AUD">10</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="AUD">100</cbc:TaxableAmount>
+    </cac:TaxSubtotal>
+    <cbc:TaxAmount currencyID="AUD">10</cbc:TaxAmount>
+  </cac:TaxTotal>
+  <cbc:BuyerReference>QL1J5NOI8S</cbc:BuyerReference>
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#conformant#urn:fdc:peppol.eu:2017:poacc:billing:international:aunz:3.0</cbc:CustomizationID>
+  <cbc:DocumentCurrencyCode>AUD</cbc:DocumentCurrencyCode>
+  <cbc:ID>QL1J5NOI8S</cbc:ID>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:IssueDate>2022-04-18</cbc:IssueDate>
+  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+</Invoice>
