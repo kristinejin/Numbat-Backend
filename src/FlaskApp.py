@@ -108,14 +108,13 @@ def Home():
 
 
 @app.route("/Extract", methods=["POST"])
-# @loginRequired
+@loginRequired
 def Extract():
     """
     params:
     FileName
     """
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     Password = companyCodeFromUsername(Username)
     FileName = request.form["FileName"]
     url = "https://teamfudgeh17a.herokuapp.com/extract"
@@ -129,15 +128,15 @@ def Extract():
 
 
 @app.route("/Store", methods=["POST"])
-# @loginRequired
+@loginRequired
 def store():
 
     FileName = request.form["FileName"]
     binaryFile = request.files['xml']
     Xml = binaryFile.read().decode('UTF-8')
 
-    # Username = session["Username"]
-    Username = "alpha"
+    # Password = request.form["Password"]
+    Username = session["Username"]
     Password = companyCodeFromUsername(Username)
 
     if checkQuota("None", Password, "store") == "Fail":
@@ -158,7 +157,7 @@ def store():
 
 
 @app.route("/Remove", methods=["POST"])
-# @loginRequired
+@loginRequired
 def remove():
 
     FileName = request.form["FileName"]
@@ -166,8 +165,7 @@ def remove():
     params:
     FileName
     """
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     Password = companyCodeFromUsername(Username)
 
     url = "https://teamfudgeh17a.herokuapp.com/remove"
@@ -183,7 +181,7 @@ def remove():
 
 
 @app.route("/Search", methods=["POST"])
-# @loginRequired
+@loginRequired
 def search():
     """
     params:
@@ -204,8 +202,7 @@ def search():
             pass
     if issueDate == '' and senderName == '':
         raise InputError(description="Please input at least one keyword")
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     Password = companyCodeFromUsername(Username)
     url = "https://teamfudgeh17a.herokuapp.com/search"
     data = {
@@ -224,7 +221,7 @@ def search():
 
 
 @app.route("/Logout", methods=["POST"])
-# @loginRequired
+@loginRequired
 def logout():
     if request.form["Logout"] == "Logout":
         session.clear()
@@ -256,7 +253,7 @@ def receive_data():
 
 
 @app.route("/Render", methods=["POST"])
-# @loginRequired
+@loginRequired
 def rendering():
     """
     Params:
@@ -267,8 +264,7 @@ def rendering():
     (can be change to a download attatchment pop up screen)
     """
     FileName = request.form["FileName"]
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     Password = companyCodeFromUsername(Username)
 
     extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
@@ -316,7 +312,7 @@ def rendering():
 
 
 @app.route("/Create", methods=["POST"])
-# @loginRequired
+@loginRequired
 def invoice_create_route():
     """
     Params(NOTE: Create takes in json input)
@@ -358,8 +354,7 @@ def invoice_create_route():
     # https://app.swaggerhub.com/apis/SENG2021-DONUT/e-invoice_creation/1.0.0#/XML%20Conversion/jsonconvert
     pload = request.get_json()
     fileName = pload['fileName']
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     supplierCompanyCode = companyCodeFromUsername(Username)
     invoiceDict = invoiceCreate(pload, supplierCompanyCode)
 
@@ -437,7 +432,7 @@ def auth_passwordreset_reset_v1():
 
 
 @app.route("/senders/add", methods=["POST"])
-# @loginRequired
+@loginRequired
 def add_sender_route():
     '''
     Description: 
@@ -455,14 +450,13 @@ def add_sender_route():
     '''
 
     senderName = request.form['senderName']
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     companyCode = companyCodeFromUsername(Username)
     return dumps(addSender(companyCode, senderName))
 
 
 @app.route("/senders/remove", methods=["DELETE"])
-# @loginRequired
+@loginRequired
 def remove_sender_route():
     '''
     NOTE: This route is DELETE method, if it doesn't work well, please change to POST or PUT
@@ -480,14 +474,13 @@ def remove_sender_route():
     Return:{ 'removeSenderStatus': True } on success
     '''
     senderName = request.form['senderName']
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     companyCode = companyCodeFromUsername(Username)
     return dumps(removeSender(companyCode, senderName))
 
 
 @app.route("/Send", methods=["POST"])
-# @loginRequired
+@loginRequired
 def internal_sending_route():
     '''
     Description:
@@ -505,8 +498,7 @@ def internal_sending_route():
     '''
     receiverName = request.form["receiverName"]
     FileName = request.form["FileName"]
-    # Username = session["Username"]
-    Username = "alpha"
+    Username = session["Username"]
     senderCompanyCode = companyCodeFromUsername(Username)
     receiverCompanyCode = companyCodeFromName(receiverName)['companyCode']
 
