@@ -6,7 +6,7 @@ import random
 def invoiceCreate(userInput, supplierCompanyCode):
     invoiceDict = BASE_CREATE_DATA
     for k, v in userInput.items():
-        if k != 'fileName':
+        if k not in ['fileName', 'username']:
             if k[:-1] == "InvoiceName":
                 invoiceDict["InvoiceTaxID" + k[-1]] = 10
                 invoiceDict["InvoiceTaxPercent" + k[-1]] = 10

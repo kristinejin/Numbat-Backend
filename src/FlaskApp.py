@@ -312,7 +312,7 @@ def rendering():
 
 
 @app.route("/Create", methods=["POST"])
-@loginRequired
+
 def invoice_create_route():
     """
     Params(NOTE: Create takes in json input)
@@ -354,13 +354,16 @@ def invoice_create_route():
     # https://app.swaggerhub.com/apis/SENG2021-DONUT/e-invoice_creation/1.0.0#/XML%20Conversion/jsonconvert
     pload = request.get_json()
     fileName = pload['fileName']
-    Username = session["Username"]
+    Username = pload['username']
+    print(Username)
     supplierCompanyCode = companyCodeFromUsername(Username)
+    print(supplierCompanyCode)
     invoiceDict = invoiceCreate(pload, supplierCompanyCode)
 
     createUrl = "https://seng-donut-deployment.herokuapp.com/json/convert"
     r = requests.post(
         createUrl, json=invoiceDict)
+
 
     if r.status_code == 200:
         if checkQuota("None", supplierCompanyCode, "store") == "Fail":
@@ -369,9 +372,12 @@ def invoice_create_route():
         storeUrl = "https://teamfudgeh17a.herokuapp.com/store"
         data = {"FileName": fileName, "XML": r.content.decode('ascii'),
                 "Password": supplierCompanyCode}
+        print(type(r.content.decode('ascii')), r.content.decode('ascii'))
         storeResp = requests.post(storeUrl, data=data)
+        
         if storeResp.status_code != 200:
             raise InputError("Invoice cannot be stored")
+            print("done")
         return send_file(BytesIO(r.content), mimetype='text/xml', as_attachment=True, download_name=f"{fileName}.xml")
     else:
         raise InputError(
