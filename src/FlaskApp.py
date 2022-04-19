@@ -107,7 +107,7 @@ def Home():
     return dumps({"invoices": retVal})
 
 
-@app.route("/Extract", methods=["GET", "POST"])
+@app.route("/Extract", methods=["POST"])
 @loginRequired
 def Extract():
     """
@@ -122,7 +122,7 @@ def Extract():
     try:
         r = requests.post(url, data)
         return send_file(BytesIO(
-            r.text.encode('utf-8')), mimetype='text/xml', download_name=f"{FileName}.xml")
+            r.text.encode('utf-8')), mimetype='text/xml', download_name=f"{FileName}.xml", as_attachment=True)
     except Exception as e:
         raise e
 

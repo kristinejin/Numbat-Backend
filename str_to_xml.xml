@@ -3,15 +3,15 @@
   <cac:AccountingCustomerParty>
     <cac:Party>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>UNSW</cbc:RegistrationName>
+        <cbc:RegistrationName>english</cbc:RegistrationName>
       </cac:PartyLegalEntity>
       <cac:PostalAddress>
         <cac:Country>
           <cbc:IdentificationCode>AU</cbc:IdentificationCode>
         </cac:Country>
-        <cbc:CityName>Kensington</cbc:CityName>
-        <cbc:PostalZone>2030</cbc:PostalZone>
-        <cbc:StreetName>700 UNSW Street</cbc:StreetName>
+        <cbc:CityName>English Hills</cbc:CityName>
+        <cbc:PostalZone>2000</cbc:PostalZone>
+        <cbc:StreetName>25 English Street</cbc:StreetName>
       </cac:PostalAddress>
     </cac:Party>
   </cac:AccountingCustomerParty>
@@ -34,7 +34,7 @@
     </cac:Party>
   </cac:AccountingSupplierParty>
   <cac:AdditionalDocumentReference>
-    <cbc:ID>9datagcl0p</cbc:ID>
+    <cbc:ID>ql1j5noi8s</cbc:ID>
   </cac:AdditionalDocumentReference>
   <cac:InvoiceLine>
     <cac:Item>
@@ -45,25 +45,25 @@
         <cbc:ID>5</cbc:ID>
         <cbc:Percent>10</cbc:Percent>
       </cac:ClassifiedTaxCategory>
-      <cbc:Name>Office Chair</cbc:Name>
+      <cbc:Name>Tissues</cbc:Name>
     </cac:Item>
     <cac:Price>
       <cbc:BaseQuantity>1</cbc:BaseQuantity>
-      <cbc:PriceAmount currencyID="AUD">250</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="AUD">0.2</cbc:PriceAmount>
     </cac:Price>
     <cbc:ID>1</cbc:ID>
-    <cbc:InvoicedQuantity>2</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="AUD">500</cbc:LineExtensionAmount>
+    <cbc:InvoicedQuantity>500</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="AUD">0</cbc:LineExtensionAmount>
   </cac:InvoiceLine>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="AUD">500</cbc:LineExtensionAmount>
-    <cbc:PayableAmount currencyID="AUD">550</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="AUD">100</cbc:LineExtensionAmount>
+    <cbc:PayableAmount currencyID="AUD">110</cbc:PayableAmount>
     <cbc:PayableRoundingAmount currencyID="AUD">0</cbc:PayableRoundingAmount>
-    <cbc:TaxExclusiveAmount currencyID="AUD">500</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="AUD">550</cbc:TaxInclusiveAmount>
+    <cbc:TaxExclusiveAmount currencyID="AUD">100</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="AUD">110</cbc:TaxInclusiveAmount>
   </cac:LegalMonetaryTotal>
   <cac:PaymentMeans>
-    <cbc:PaymentID>9DATAGCL0P</cbc:PaymentID>
+    <cbc:PaymentID>QL1J5NOI8S</cbc:PaymentID>
     <cbc:PaymentMeansCode>1</cbc:PaymentMeansCode>
   </cac:PaymentMeans>
   <cac:PaymentTerms>
@@ -78,17 +78,17 @@
         <cbc:ID>GST</cbc:ID>
         <cbc:Percent>10</cbc:Percent>
       </cac:TaxCategory>
-      <cbc:TaxAmount currencyID="AUD">50</cbc:TaxAmount>
-      <cbc:TaxableAmount currencyID="AUD">500</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="AUD">10</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="AUD">100</cbc:TaxableAmount>
     </cac:TaxSubtotal>
-    <cbc:TaxAmount currencyID="AUD">50</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="AUD">10</cbc:TaxAmount>
   </cac:TaxTotal>
-  <cbc:BuyerReference>9DATAGCL0P</cbc:BuyerReference>
+  <cbc:BuyerReference>QL1J5NOI8S</cbc:BuyerReference>
   <cbc:CustomizationID>urn:cen.eu:en16931:2017#conformant#urn:fdc:peppol.eu:2017:poacc:billing:international:aunz:3.0</cbc:CustomizationID>
   <cbc:DocumentCurrencyCode>AUD</cbc:DocumentCurrencyCode>
-  <cbc:ID>9DATAGCL0P</cbc:ID>
+  <cbc:ID>QL1J5NOI8S</cbc:ID>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
-  <cbc:IssueDate>2022-03-01</cbc:IssueDate>
+  <cbc:IssueDate>2022-04-18</cbc:IssueDate>
   <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
   <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
 </Invoice>
