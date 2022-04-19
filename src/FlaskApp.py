@@ -371,7 +371,7 @@ def invoice_create_route():
             description="Invoice cannot be created: Duplicated Filename or Invalid XML format")
 
 
-@app.route("/Test", methods=["POST"])
+@app.route("/Userinfo", methods=["POST"])
 # @loginRequired
 def userinfo_return():
     Username = request.form["UserName"]
@@ -382,8 +382,13 @@ def userinfo_return():
     cur = conn.cursor()
 
     # Insert data into db
-    sql = "Select username, password, numrenders, email from userinfo where username = %s"
-    val = [Username]
+    sql = """
+        select a.username, a.password, a.email, b.numrenders, c.numinvoices 
+        from userinfo a, 
+        (select sum(numrenders) as numrenders from userinfo where companycode = (select companycode from userinfo where username  = %s)) as b, 
+        (select count(distinct file_name) as numinvoices from invoices where password = (select companycode from userinfo where username  = %s)) as c where a.username = %s
+        """
+    val = [Username, Username, Username]
     cur.execute(sql, val)
 
     retVal = cur.fetchall()
@@ -396,7 +401,7 @@ def userinfo_return():
     cur.close()
     conn.close()
 
-    return dumps({"userinfo": {"username": account[0], "password": account[1], "numrenders": account[2], "email": account[3]}})
+    return dumps({"userinfo": {"username": account[0], "password": account[1], "email": account[2], "numrenders": account[3], "numinvoices": account[4]}})
 
 
 @app.route("/passwordreset/request", methods=["POST"])
