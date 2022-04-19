@@ -98,6 +98,7 @@ def createCompanyRoute():
 
 
 @app.route("/Home", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def Home():
     # Username = session["Username"]
@@ -108,13 +109,15 @@ def Home():
 
 
 @app.route("/Extract", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def Extract():
     """
     params:
     FileName
     """
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     Password = companyCodeFromUsername(Username)
     FileName = request.form["FileName"]
     url = "https://teamfudgeh17a.herokuapp.com/extract"
@@ -128,7 +131,8 @@ def Extract():
 
 
 @app.route("/Store", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def store():
 
     FileName = request.form["FileName"]
@@ -136,7 +140,8 @@ def store():
     Xml = binaryFile.read().decode('UTF-8')
 
     # Password = request.form["Password"]
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     Password = companyCodeFromUsername(Username)
 
     if checkQuota("None", Password, "store") == "Fail":
@@ -157,7 +162,8 @@ def store():
 
 
 @app.route("/Remove", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def remove():
 
     FileName = request.form["FileName"]
@@ -165,7 +171,8 @@ def remove():
     params:
     FileName
     """
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     Password = companyCodeFromUsername(Username)
 
     url = "https://teamfudgeh17a.herokuapp.com/remove"
@@ -181,7 +188,8 @@ def remove():
 
 
 @app.route("/Search", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def search():
     """
     params:
@@ -202,7 +210,8 @@ def search():
             pass
     if issueDate == '' and senderName == '':
         raise InputError(description="Please input at least one keyword")
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     Password = companyCodeFromUsername(Username)
     url = "https://teamfudgeh17a.herokuapp.com/search"
     data = {
@@ -221,7 +230,8 @@ def search():
 
 
 @app.route("/Logout", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def logout():
     if request.form["Logout"] == "Logout":
         session.clear()
@@ -253,7 +263,8 @@ def receive_data():
 
 
 @app.route("/Render", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def rendering():
     """
     Params:
@@ -264,7 +275,8 @@ def rendering():
     (can be change to a download attatchment pop up screen)
     """
     FileName = request.form["FileName"]
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     Password = companyCodeFromUsername(Username)
 
     extractURL = "https://teamfudgeh17a.herokuapp.com/extract"
@@ -312,7 +324,8 @@ def rendering():
 
 
 @app.route("/Create", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def invoice_create_route():
     """
     Params(NOTE: Create takes in json input)
@@ -354,7 +367,8 @@ def invoice_create_route():
     # https://app.swaggerhub.com/apis/SENG2021-DONUT/e-invoice_creation/1.0.0#/XML%20Conversion/jsonconvert
     pload = request.get_json()
     fileName = pload['fileName']
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     supplierCompanyCode = companyCodeFromUsername(Username)
     invoiceDict = invoiceCreate(pload, supplierCompanyCode)
 
@@ -378,7 +392,8 @@ def invoice_create_route():
             description="Invoice cannot be created: Duplicated Filename or Invalid XML format")
 
 
-@app.route("/Userinfo", methods=["POST"])
+@app.route("/Test", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def userinfo_return():
     Username = request.form["UserName"]
@@ -432,7 +447,8 @@ def auth_passwordreset_reset_v1():
 
 
 @app.route("/senders/add", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def add_sender_route():
     '''
     Description: 
@@ -450,13 +466,15 @@ def add_sender_route():
     '''
 
     senderName = request.form['senderName']
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     companyCode = companyCodeFromUsername(Username)
     return dumps(addSender(companyCode, senderName))
 
 
 @app.route("/senders/remove", methods=["DELETE"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def remove_sender_route():
     '''
     NOTE: This route is DELETE method, if it doesn't work well, please change to POST or PUT
@@ -474,13 +492,15 @@ def remove_sender_route():
     Return:{ 'removeSenderStatus': True } on success
     '''
     senderName = request.form['senderName']
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     companyCode = companyCodeFromUsername(Username)
     return dumps(removeSender(companyCode, senderName))
 
 
 @app.route("/Send", methods=["POST"])
-@loginRequired
+# removed for testing purposes
+# @loginRequired
 def internal_sending_route():
     '''
     Description:
@@ -498,7 +518,8 @@ def internal_sending_route():
     '''
     receiverName = request.form["receiverName"]
     FileName = request.form["FileName"]
-    Username = session["Username"]
+    # Username = session["Username"]
+    Username = "alpha"
     senderCompanyCode = companyCodeFromUsername(Username)
     receiverCompanyCode = companyCodeFromName(receiverName)['companyCode']
 
