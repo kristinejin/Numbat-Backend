@@ -8,7 +8,7 @@ def selectAll(companycode: str):
         cur = conn.cursor()
 
         sql = (
-            "select id1, file_name, issue_date, sender_name, buyer_name, amount_payable, tax_payable, goods_payable from invoices where password = %s"
+            "select id1, file_name, issue_date, sender_name, buyer_name, amount_payable, tax_payable, goods_payable from invoices where password = %s order by id1 desc"
         )
         # sql = (
         #     "select id1, file_name, issue_date, sender_name from invoices where password = %s"
