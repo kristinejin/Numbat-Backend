@@ -98,6 +98,7 @@ def createCompanyRoute():
 
 
 @app.route("/Home", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def Home():
     # Username = session["Username"]
@@ -108,6 +109,7 @@ def Home():
 
 
 @app.route("/Extract", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def Extract():
     """
@@ -129,6 +131,7 @@ def Extract():
 
 
 @app.route("/Store", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def store():
 
@@ -158,6 +161,7 @@ def store():
 
 
 @app.route("/Remove", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def remove():
 
@@ -183,6 +187,7 @@ def remove():
 
 
 @app.route("/Search", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def search():
     """
@@ -224,6 +229,7 @@ def search():
 
 
 @app.route("/Logout", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def logout():
     if request.form["Logout"] == "Logout":
@@ -256,6 +262,7 @@ def receive_data():
 
 
 @app.route("/Render", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def rendering():
     """
@@ -316,6 +323,7 @@ def rendering():
 
 
 @app.route("/Create", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def invoice_create_route():
     """
@@ -384,6 +392,7 @@ def invoice_create_route():
 
 
 @app.route("/Test", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def userinfo_return():
     Username = request.form["UserName"]
@@ -432,6 +441,7 @@ def auth_passwordreset_reset_v1():
 
 
 @app.route("/senders/add", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def add_sender_route():
     '''
@@ -457,6 +467,7 @@ def add_sender_route():
 
 
 @app.route("/senders/remove", methods=["DELETE"])
+# removed for testing purposes
 # @loginRequired
 def remove_sender_route():
     '''
@@ -482,6 +493,7 @@ def remove_sender_route():
 
 
 @app.route("/Send", methods=["POST"])
+# removed for testing purposes
 # @loginRequired
 def internal_sending_route():
     '''
