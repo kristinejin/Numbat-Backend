@@ -29,7 +29,7 @@
 #         '/UserLogin', data={'UserName': 'alpha', 'Password': 'beta'})
 #     assert resp.status_code == 200
 #     resp = client.post(
-#         '/Home', data={})
+#         '/Home', data={'UserName': 'alpha'})
 #     assert resp.status_code == 200
 #     print(resp.data.decode("utf-8"))
 #     assert 10 == 5
