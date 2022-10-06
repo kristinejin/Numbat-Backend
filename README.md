@@ -31,4 +31,4 @@ Interface
 
 Notes
 ---
-This application is created for SENG2021 (Software Engineering Workshop) project by myself, Mathew, Peter and Surya. I primarily worked on the backend with another member from the team. I also designed the User Interface on Figma. 
+This application is created for SENG2021 (Software Engineering Workshop) project by myself, Mathew, Peter and Surya. I primarily worked on the backend with another member while the frontend is done by the other two members. I also designed the User Interface on Figma. 
