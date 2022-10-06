@@ -18,15 +18,12 @@ Infrastructure
 Interface
 ---
 - Landing page
-- 
 <img width="1442" alt="Screen Shot 2022-10-06 at 6 19 37 pm" src="https://user-images.githubusercontent.com/90883031/194245676-ed9788f9-3780-4c39-b0b3-c7d908501bce.png">
 
 - Login page
-- 
 <img width="1442" alt="Screen Shot 2022-10-06 at 6 19 37 pm" src="https://user-images.githubusercontent.com/90883031/194245846-a0133898-9363-483d-a688-ff5125074d87.png">
 
-- User Home page
-- 
+- User home page
 <img width="1522" alt="Screen Shot 2022-10-06 at 6 21 16 pm" src="https://user-images.githubusercontent.com/90883031/194245941-967c6343-53c3-4ec9-8aff-cd5448397643.png">
 
 (p.s. The user interface is not completely achieved due to extraordinary circumstances, but we look forward to update this in the future)
