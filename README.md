@@ -10,7 +10,8 @@ According to the Australian Taxation Office, a standard paper and PDF invoices c
 
 Infrastructure
 ---
-- Backend Framework: Python (Flask), PostgresSQL
+- Backend Framework: Python (Flask)
+- Database: PostgresSQL
 - Frontend Framework: ReactJS
 - Deployment: Heroku
 - APIs: We implemented e-invoice creating and rendering feature (converting e-invoice from raw xml format to human readable pdf format) through using APIs built by other teams in the course that we have public access to. 
